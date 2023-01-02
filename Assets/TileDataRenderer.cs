@@ -1,0 +1,172 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Tilemaps;
+
+public class TileDataRenderer : MonoBehaviour
+{
+    /// <summary>
+    /// This performs a one-way conversion on the tile data for each grid cell
+    /// into a visual depiction.
+    /// </summary>
+    /// 
+
+    private enum MoistureCategory { Dry, Damp, Wet}
+    private enum TemperatureCategory { Cold, Warm, Hot}
+
+
+    public static TileDataRenderer Instance;
+
+    [SerializeField] Tilemap _tilemap_base = null;
+    [SerializeField] Tilemap _tilemap_population = null;
+    [SerializeField] Tilemap _tilemap_traffic = null;
+    [SerializeField] Tilemap _tilemap_vegetation = null;
+
+    //settings
+    [Header("Tile Examples")]
+    [SerializeField] TileBase _dryCold_base = null;
+    [SerializeField] TileBase _dryWarm_base = null;
+    [SerializeField] TileBase _dryHot_base = null;
+
+    [SerializeField] TileBase _dampCold_base = null;
+    [SerializeField] TileBase _dampWarm_base = null;
+    [SerializeField] TileBase _dampHot_base = null;
+
+    [SerializeField] TileBase _wetCold_base = null;
+    [SerializeField] TileBase _wetWarm_base = null;
+    [SerializeField] TileBase _wetHot_base = null;
+
+    [Header("Temperature/Moisture Thresholds")]
+    [SerializeField] float _dryThreshold = 0.3f;
+    [SerializeField] float _wetThreshold = 0.7f;
+    [SerializeField] float _coldThreshold = 0.3f;
+    [SerializeField] float _hotThreshold = 0.7f;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
+    [ContextMenu("Render All Cells")]
+    private void RenderAllCells()
+    {
+        Vector3Int coord = new Vector3Int(0, 0, 0);
+        for (int x = 0; x < TileDataHolder.Instance.Dimension; x++)
+        {
+            for (int y = 0; y < TileDataHolder.Instance.Dimension; y++)
+            {
+                coord.x = x;
+                coord.y = y;
+                RenderSingleCellByCoord(coord);
+            }
+        }
+    }
+
+
+    public void RenderSingleCellByCoord(Vector3Int coord)
+    {
+        TileData td = TileDataHolder.Instance.GetTileDataAtTileCoord(coord);
+
+        RenderBaseTile(coord, td);
+        RenderPopulationTile(coord, td);
+        RenderTrafficTile(coord, td);
+        RenderVegetationTile(coord, td);
+    }
+
+    private void RenderBaseTile(Vector3Int coord, TileData td)
+    {
+        MoistureCategory moistureCategory = ConvertMoistureIntoMoistureCat(td.Moisture);
+        TemperatureCategory tempCat = ConvertTemperatureIntoTempCat(td.Temperature);
+        TileBase tile = _dryCold_base;
+        switch (moistureCategory)
+        {
+            case MoistureCategory.Dry:
+                switch (tempCat)
+                {
+                    case TemperatureCategory.Cold:
+                        tile = _dryCold_base;
+                        break;
+                    case TemperatureCategory.Warm:
+                        tile = _dryWarm_base;
+                        break;
+                    case TemperatureCategory.Hot:
+                        tile = _dryHot_base;
+                        break;
+                }
+                break;
+
+            case MoistureCategory.Damp:
+                switch (tempCat)
+                {
+                    case TemperatureCategory.Cold:
+                        tile = _dampCold_base;
+                        break;
+                    case TemperatureCategory.Warm:
+                        tile = _dampWarm_base;
+                        break;
+                    case TemperatureCategory.Hot:
+                        tile = _dampHot_base;
+                        break;
+                }
+                break;
+
+            case MoistureCategory.Wet:
+                switch (tempCat)
+                {
+                    case TemperatureCategory.Cold:
+                        tile = _wetCold_base;
+                        break;
+                    case TemperatureCategory.Warm:
+                        tile = _wetWarm_base;
+                        break;
+                    case TemperatureCategory.Hot:
+                        tile = _wetHot_base;
+                        break;
+                }
+                break;
+        }
+        _tilemap_base.SetTile(coord, tile);
+    }
+
+    private void RenderPopulationTile(Vector3Int coord, TileData td)
+    {
+
+    }
+
+    private void RenderTrafficTile(Vector3Int coord, TileData td)
+    {
+
+    }
+
+    private void RenderVegetationTile(Vector3Int coord, TileData td)
+    {
+        
+    }
+
+    private MoistureCategory ConvertMoistureIntoMoistureCat(float moisture)
+    {
+        if (moisture < _dryThreshold)
+        {
+            return MoistureCategory.Dry;
+        }
+        if (moisture > _wetThreshold)
+        {
+            return MoistureCategory.Wet;
+        }
+        else return MoistureCategory.Damp;
+    }
+
+    private TemperatureCategory ConvertTemperatureIntoTempCat(float temperature)
+    {
+        if (temperature < _coldThreshold)
+        {
+            return TemperatureCategory.Cold;
+        }
+        if (temperature > _hotThreshold)
+        {
+            return TemperatureCategory.Hot;
+        }
+        else return TemperatureCategory.Warm;
+    }
+}
