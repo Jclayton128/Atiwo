@@ -19,12 +19,13 @@ public class TileDataRenderer : MonoBehaviour
     public static TileDataRenderer Instance;
 
     [SerializeField] Tilemap _tilemap_base = null;
-    [SerializeField] Tilemap _tilemap_population = null;
+    [SerializeField] Tilemap _tilemap_population_light = null;
+    [SerializeField] Tilemap _tilemap_population_heavy = null;
     [SerializeField] Tilemap _tilemap_traffic = null;
     [SerializeField] Tilemap _tilemap_vegetation = null;
 
     //settings
-    [Header("Tile Examples")]
+    [Header("Base Tile Examples")]
     [SerializeField] TileBase _dryCold_base = null;
     [SerializeField] TileBase _dryWarm_base = null;
     [SerializeField] TileBase _dryHot_base = null;
@@ -42,6 +43,14 @@ public class TileDataRenderer : MonoBehaviour
     [SerializeField] float _wetThreshold = 0.7f;
     [SerializeField] float _coldThreshold = 0.3f;
     [SerializeField] float _hotThreshold = 0.7f;
+
+    [Header("Population Tile Examples")]
+    [SerializeField] TileBase _pavers_middle = null;
+    [SerializeField] TileBase _pavers_dense = null;
+
+    [Header("Population Thresholds")]
+    [SerializeField] float _sparseThreshold = 0.3f;
+    [SerializeField] float _denseThreshold = 0.7f;
 
     private void Awake()
     {
@@ -131,17 +140,32 @@ public class TileDataRenderer : MonoBehaviour
 
     private void RenderPopulationTile(Vector3Int coord, TileData td)
     {
+        if (td.Population > _denseThreshold)
+        {
+            _tilemap_population_heavy.SetTile(coord, _pavers_dense);
+            _tilemap_population_light.SetTile(coord, _pavers_middle);
+        }
+        else if (td.Population >= _sparseThreshold)
+        {
+            _tilemap_population_heavy.SetTile(coord, null);
+            _tilemap_population_light.SetTile(coord, _pavers_middle);
+        }
+        else
+        {
+            _tilemap_population_heavy.SetTile(coord, null);
+            _tilemap_population_light.SetTile(coord, null);
+        }
 
     }
 
     private void RenderTrafficTile(Vector3Int coord, TileData td)
     {
-
+        _tilemap_traffic.SetTile(coord, null);
     }
 
     private void RenderVegetationTile(Vector3Int coord, TileData td)
     {
-        
+        _tilemap_vegetation.SetTile(coord, null);
     }
 
     private MoistureCategory ConvertMoistureIntoMoistureCat(float moisture)

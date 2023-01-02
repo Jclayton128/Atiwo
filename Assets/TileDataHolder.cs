@@ -55,9 +55,9 @@ public class TileDataHolder : MonoBehaviour
                 coord.y = y;
                 _temperatureMap.Add(coord, _startingValue);
                 _moistureMap.Add(coord, _startingValue); 
-                _trafficMap.Add(coord, _startingValue); 
-                _vegetationMap.Add(coord, _startingValue);
-                _populationMap.Add(coord, _startingValue);
+                _trafficMap.Add(coord, 0); 
+                _vegetationMap.Add(coord, 0);
+                _populationMap.Add(coord, 0);
 
             }
         }
