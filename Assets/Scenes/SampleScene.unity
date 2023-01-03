@@ -4297,6 +4297,7 @@ MonoBehaviour:
   _pavers_dense: {fileID: 11400000, guid: e6222ce45e040f246a75891bf311ba85, type: 2}
   _sparseThreshold: 0.3
   _denseThreshold: 0.7
+  _path_brown: {fileID: 11400000, guid: 20fd4e5189d6d174687682a41c5dbedf, type: 2}
 --- !u!114 &517811938
 MonoBehaviour:
   m_ObjectHideFlags: 0

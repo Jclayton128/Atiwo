@@ -52,6 +52,9 @@ public class TileDataRenderer : MonoBehaviour
     [SerializeField] float _sparseThreshold = 0.3f;
     [SerializeField] float _denseThreshold = 0.7f;
 
+    [Header("Path Tile Examples")]
+    [SerializeField] TileBase _path_brown = null;
+
     private void Awake()
     {
         Instance = this;
@@ -160,7 +163,15 @@ public class TileDataRenderer : MonoBehaviour
 
     private void RenderTrafficTile(Vector3Int coord, TileData td)
     {
-        _tilemap_traffic.SetTile(coord, null);
+        if (td.Traffic >= 0.5f)
+        {
+            _tilemap_traffic.SetTile(coord, _path_brown);
+        }
+        else
+        {
+            _tilemap_traffic.SetTile(coord, null);
+        }
+
     }
 
     private void RenderVegetationTile(Vector3Int coord, TileData td)
