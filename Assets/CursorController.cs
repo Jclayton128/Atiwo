@@ -32,26 +32,26 @@ public class CursorController : MonoBehaviour
         {
             if (Mathf.Abs(_moistureAdjustAmount) >= 0.1)
             {
-                TileDataHolder.Instance.ModifyMoistureAtTile(_cursorCellCoord, _moistureAdjustAmount);
+                TileStatsHolder.Instance.ModifyMoistureAtTile(_cursorCellCoord, _moistureAdjustAmount);
             }
             if (Mathf.Abs(_tempAdjustAmount) >= 0.1)
             {
-                TileDataHolder.Instance.ModifyTemperatureAtTile(_cursorCellCoord, _tempAdjustAmount);
+                TileStatsHolder.Instance.ModifyTemperatureAtTile(_cursorCellCoord, _tempAdjustAmount);
             }
             if (Mathf.Abs(_popAdjustAmount) >= 0.1)
             {
-                TileDataHolder.Instance.ModifyPopulationAtTile(_cursorCellCoord, _popAdjustAmount);
+                TileStatsHolder.Instance.ModifyPopulationAtTile(_cursorCellCoord, _popAdjustAmount);
             }
             if (Mathf.Abs(_trafficAdjustAmount) >= 0.1)
             {
-                TileDataHolder.Instance.ModifyTrafficAtTile(_cursorCellCoord, _trafficAdjustAmount);
+                TileStatsHolder.Instance.ModifyTrafficAtTile(_cursorCellCoord, _trafficAdjustAmount);
             }
             if (Mathf.Abs(_vegAdjustAmount) >= 0.1)
             {
-                TileDataHolder.Instance.ModifyVegetationAtTile(_cursorCellCoord, _vegAdjustAmount);
+                TileStatsHolder.Instance.ModifyVegetationAtTile(_cursorCellCoord, _vegAdjustAmount);
             }
 
-            TileDataRenderer.Instance.RenderSingleCellByCoord(_cursorCellCoord);
+            TileStatsRenderer.Instance.RenderSingleCellByCoord(_cursorCellCoord);
         }
     }
 
@@ -136,10 +136,10 @@ public class CursorController : MonoBehaviour
     private void UpdateCursorInspection()
     {
         _cursorWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition) + _offset;
-        _cursorCellCoord = TileDataHolder.Instance.GetTileCoord(_cursorWorldPos);
+        _cursorCellCoord = TileStatsHolder.Instance.GetTileCoord(_cursorWorldPos);
 
         UI_TileInspector.Instance.SetTileCoords(_cursorCellCoord);
-        TileData td = TileDataHolder.Instance.GetTileDataAtTileCoord(_cursorCellCoord);
+        TileStats td = TileStatsHolder.Instance.GetTileDataAtTileCoord(_cursorCellCoord);
 
         UI_TileInspector.Instance.SetTemperature(td.Temperature);
         UI_TileInspector.Instance.SetMoisture(td.Moisture);

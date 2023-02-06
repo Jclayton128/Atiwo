@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class TileDataRenderer : MonoBehaviour
+public class TileStatsRenderer : MonoBehaviour
 {
     /// <summary>
     /// This performs a one-way conversion on the tile data for each grid cell
@@ -16,7 +16,7 @@ public class TileDataRenderer : MonoBehaviour
     private enum TemperatureCategory { Cold, Warm, Hot}
 
 
-    public static TileDataRenderer Instance;
+    public static TileStatsRenderer Instance;
 
     [SerializeField] Tilemap _tilemap_base = null;
     [SerializeField] Tilemap _tilemap_population_light = null;
@@ -64,9 +64,9 @@ public class TileDataRenderer : MonoBehaviour
     private void RenderAllCells()
     {
         Vector3Int coord = new Vector3Int(0, 0, 0);
-        for (int x = 0; x < TileDataHolder.Instance.Dimension; x++)
+        for (int x = 0; x < TileStatsHolder.Instance.Dimension; x++)
         {
-            for (int y = 0; y < TileDataHolder.Instance.Dimension; y++)
+            for (int y = 0; y < TileStatsHolder.Instance.Dimension; y++)
             {
                 coord.x = x;
                 coord.y = y;
@@ -78,7 +78,7 @@ public class TileDataRenderer : MonoBehaviour
 
     public void RenderSingleCellByCoord(Vector3Int coord)
     {
-        TileData td = TileDataHolder.Instance.GetTileDataAtTileCoord(coord);
+        TileStats td = TileStatsHolder.Instance.GetTileDataAtTileCoord(coord);
 
         RenderBaseTile(coord, td);
         RenderPopulationTile(coord, td);
@@ -86,7 +86,7 @@ public class TileDataRenderer : MonoBehaviour
         RenderVegetationTile(coord, td);
     }
 
-    private void RenderBaseTile(Vector3Int coord, TileData td)
+    private void RenderBaseTile(Vector3Int coord, TileStats td)
     {
         MoistureCategory moistureCategory = ConvertMoistureIntoMoistureCat(td.Moisture);
         TemperatureCategory tempCat = ConvertTemperatureIntoTempCat(td.Temperature);
@@ -141,7 +141,7 @@ public class TileDataRenderer : MonoBehaviour
         _tilemap_base.SetTile(coord, tile);
     }
 
-    private void RenderPopulationTile(Vector3Int coord, TileData td)
+    private void RenderPopulationTile(Vector3Int coord, TileStats td)
     {
         if (td.Population > _denseThreshold)
         {
@@ -161,7 +161,7 @@ public class TileDataRenderer : MonoBehaviour
 
     }
 
-    private void RenderTrafficTile(Vector3Int coord, TileData td)
+    private void RenderTrafficTile(Vector3Int coord, TileStats td)
     {
         if (td.Traffic >= 0.5f)
         {
@@ -174,7 +174,7 @@ public class TileDataRenderer : MonoBehaviour
 
     }
 
-    private void RenderVegetationTile(Vector3Int coord, TileData td)
+    private void RenderVegetationTile(Vector3Int coord, TileStats td)
     {
         _tilemap_vegetation.SetTile(coord, null);
     }

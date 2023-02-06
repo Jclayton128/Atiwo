@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TileDataHolder : MonoBehaviour
+public class TileStatsHolder : MonoBehaviour
 {
 
     /// <summary>
@@ -11,7 +11,7 @@ public class TileDataHolder : MonoBehaviour
     /// 
     /// </summary>
     
-    public static TileDataHolder Instance;
+    public static TileStatsHolder Instance;
     Grid _grid;
 
     //settings
@@ -69,9 +69,19 @@ public class TileDataHolder : MonoBehaviour
         _temperatureMap[tileCoord] += temperatureChange;
     }
 
+    public void SetTemperatureAtTile(Vector3Int tileCoord, float temperature)
+    {
+        _temperatureMap[tileCoord] = temperature;
+    }
+
     public void ModifyMoistureAtTile(Vector3Int tileCoord, float moistureChange)
     {
         _moistureMap[tileCoord] += moistureChange;
+    }
+
+    public void SetMoistureAtTile(Vector3Int tileCoord, float moisture)
+    {
+        _moistureMap[tileCoord] = moisture;
     }
 
     public void ModifyPopulationAtTile(Vector3Int tileCoord, float populationChange)
@@ -102,9 +112,9 @@ public class TileDataHolder : MonoBehaviour
         return _grid.WorldToCell(worldPos);
     }
 
-    public TileData GetTileDataAtTileCoord(Vector3Int tileCoord)
+    public TileStats GetTileDataAtTileCoord(Vector3Int tileCoord)
     {
-        TileData td = new TileData();
+        TileStats td = new TileStats();
 
         td.Temperature = _temperatureMap[tileCoord];
         td.Moisture = _moistureMap[tileCoord];

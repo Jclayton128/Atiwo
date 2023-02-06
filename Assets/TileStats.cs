@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct TileData
+public struct TileStats
 {
     public float Temperature;
     public float Moisture;
