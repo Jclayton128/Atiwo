@@ -12,13 +12,20 @@ public class TileStatsRenderer : MonoBehaviour
     /// </summary>
     /// 
 
-    private enum MoistureCategory { Dry, Damp, Wet}
-    private enum TemperatureCategory { Cold, Warm, Hot}
+    private enum MoistureCategory { Dry, MidWet, Wet, River, Water}
+    private enum TemperatureCategory { Cold, MidTemp, Hot}
 
 
     public static TileStatsRenderer Instance;
 
-    [SerializeField] Tilemap _tilemap_base = null;
+    [SerializeField] Tilemap _tilemap_sand = null;
+    [SerializeField] Tilemap _tilemap_swamp = null;
+    [SerializeField] Tilemap _tilemap_grass = null;
+    [SerializeField] Tilemap _tilemap_pack = null;
+    [SerializeField] Tilemap _tilemap_snow = null;
+    [SerializeField] Tilemap _tilemap_river = null;
+    [SerializeField] Tilemap _tilemap_water = null;
+
     [SerializeField] Tilemap _tilemap_population_light = null;
     [SerializeField] Tilemap _tilemap_population_heavy = null;
     [SerializeField] Tilemap _tilemap_traffic = null;
@@ -26,17 +33,13 @@ public class TileStatsRenderer : MonoBehaviour
 
     //settings
     [Header("Base Tile Examples")]
-    [SerializeField] TileBase _dryCold_base = null;
-    [SerializeField] TileBase _dryWarm_base = null;
-    [SerializeField] TileBase _dryHot_base = null;
-
-    [SerializeField] TileBase _dampCold_base = null;
-    [SerializeField] TileBase _dampWarm_base = null;
-    [SerializeField] TileBase _dampHot_base = null;
-
-    [SerializeField] TileBase _wetCold_base = null;
-    [SerializeField] TileBase _wetWarm_base = null;
-    [SerializeField] TileBase _wetHot_base = null;
+    [SerializeField] TileBase _sand = null;
+    [SerializeField] TileBase _swamp = null;
+    [SerializeField] TileBase _grass = null;
+    [SerializeField] TileBase _pack = null;
+    [SerializeField] TileBase _snow = null;
+    [SerializeField] TileBase _river = null;
+    [SerializeField] TileBase _water = null;
 
     [Header("Temperature/Moisture Thresholds")]
     [SerializeField] float _dryThreshold = 0.3f;
@@ -88,37 +91,44 @@ public class TileStatsRenderer : MonoBehaviour
 
     private void RenderBaseTile(Vector3Int coord, TileStats td)
     {
+        ClearAllBaseTiles(coord);
         MoistureCategory moistureCategory = ConvertMoistureIntoMoistureCat(td.Moisture);
         TemperatureCategory tempCat = ConvertTemperatureIntoTempCat(td.Temperature);
-        TileBase tile = _dryCold_base;
+        TileBase tile = _grass;
         switch (moistureCategory)
         {
             case MoistureCategory.Dry:
                 switch (tempCat)
                 {
                     case TemperatureCategory.Cold:
-                        tile = _dryCold_base;
+                        tile = _snow;
+                        _tilemap_snow.SetTile(coord, tile);
                         break;
-                    case TemperatureCategory.Warm:
-                        tile = _dryWarm_base;
+                    case TemperatureCategory.MidTemp:
+                        tile = _pack;
+                        _tilemap_pack.SetTile(coord, tile);
                         break;
                     case TemperatureCategory.Hot:
-                        tile = _dryHot_base;
+                        tile = _sand;
+                        _tilemap_sand.SetTile(coord, tile);
                         break;
                 }
                 break;
 
-            case MoistureCategory.Damp:
+            case MoistureCategory.MidWet:
                 switch (tempCat)
                 {
                     case TemperatureCategory.Cold:
-                        tile = _dampCold_base;
+                        tile = _snow;
+                        _tilemap_snow.SetTile(coord, tile);
                         break;
-                    case TemperatureCategory.Warm:
-                        tile = _dampWarm_base;
+                    case TemperatureCategory.MidTemp:
+                        tile = _grass;
+                        _tilemap_grass.SetTile(coord, tile);
                         break;
                     case TemperatureCategory.Hot:
-                        tile = _dampHot_base;
+                        tile = _sand;
+                        _tilemap_sand.SetTile(coord, tile);
                         break;
                 }
                 break;
@@ -127,18 +137,32 @@ public class TileStatsRenderer : MonoBehaviour
                 switch (tempCat)
                 {
                     case TemperatureCategory.Cold:
-                        tile = _wetCold_base;
+                        tile = _snow;
+                        _tilemap_snow.SetTile(coord, tile);
                         break;
-                    case TemperatureCategory.Warm:
-                        tile = _wetWarm_base;
+                    case TemperatureCategory.MidTemp:
+                        tile = _swamp;
+                        _tilemap_swamp.SetTile(coord, tile);
                         break;
                     case TemperatureCategory.Hot:
-                        tile = _wetHot_base;
+                        tile = _sand;
+                        _tilemap_sand.SetTile(coord, tile);
                         break;
                 }
                 break;
         }
-        _tilemap_base.SetTile(coord, tile);
+
+    }
+
+    private void ClearAllBaseTiles(Vector3Int coord)
+    {
+        _tilemap_sand.SetTile(coord, null);
+        _tilemap_swamp.SetTile(coord, null);
+        _tilemap_grass.SetTile(coord, null);
+        _tilemap_pack.SetTile(coord, null);
+        _tilemap_snow.SetTile(coord, null);
+        _tilemap_river.SetTile(coord, null);
+        _tilemap_water.SetTile(coord, null);
     }
 
     private void RenderPopulationTile(Vector3Int coord, TileStats td)
@@ -189,7 +213,7 @@ public class TileStatsRenderer : MonoBehaviour
         {
             return MoistureCategory.Wet;
         }
-        else return MoistureCategory.Damp;
+        else return MoistureCategory.MidWet;
     }
 
     private TemperatureCategory ConvertTemperatureIntoTempCat(float temperature)
@@ -202,6 +226,6 @@ public class TileStatsRenderer : MonoBehaviour
         {
             return TemperatureCategory.Hot;
         }
-        else return TemperatureCategory.Warm;
+        else return TemperatureCategory.MidTemp;
     }
 }
