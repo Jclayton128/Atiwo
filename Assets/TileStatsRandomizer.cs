@@ -18,6 +18,8 @@ public class TileStatsRandomizer : MonoBehaviour
         float moistOffset = (float)rnd.NextDouble();
         Debug.Log($"to: {tempOffset}. mo: {moistOffset}");
 
+        TileStatsRenderer.Instance.ClearAllBaseTiles();
+
         Vector3Int coords = new Vector3Int(0, 0, 0);
         for (int x = 0; x < TileStatsHolder.Instance.Dimension; x++)
         {

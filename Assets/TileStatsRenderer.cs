@@ -18,11 +18,15 @@ public class TileStatsRenderer : MonoBehaviour
 
     public static TileStatsRenderer Instance;
 
-    [SerializeField] Tilemap _tilemap_sand = null;
-    [SerializeField] Tilemap _tilemap_swamp = null;
-    [SerializeField] Tilemap _tilemap_grass = null;
+    [SerializeField] Tilemap _tilemap_darkland = null;
     [SerializeField] Tilemap _tilemap_pack = null;
+    [SerializeField] Tilemap _tilemap_sand = null;
+    [SerializeField] Tilemap _tilemap_grass = null;
+    [SerializeField] Tilemap _tilemap_grass_light = null;
+    [SerializeField] Tilemap _tilemap_swamp = null;
+    [SerializeField] Tilemap _tilemap_swamp_light = null;
     [SerializeField] Tilemap _tilemap_snow = null;
+    [SerializeField] Tilemap _tilemap_snow_light = null;
     [SerializeField] Tilemap _tilemap_river = null;
     [SerializeField] Tilemap _tilemap_water = null;
 
@@ -33,19 +37,23 @@ public class TileStatsRenderer : MonoBehaviour
 
     //settings
     [Header("Base Tile Examples")]
-    [SerializeField] TileBase _sand = null;
-    [SerializeField] TileBase _swamp = null;
-    [SerializeField] TileBase _grass = null;
+    [SerializeField] TileBase _darkland = null;
     [SerializeField] TileBase _pack = null;
+    [SerializeField] TileBase _sand = null;
+    [SerializeField] TileBase _grass = null;
+    [SerializeField] TileBase _grass_light = null;
+    [SerializeField] TileBase _swamp = null;
+    [SerializeField] TileBase _swamp_light = null;
     [SerializeField] TileBase _snow = null;
-    [SerializeField] TileBase _river = null;
-    [SerializeField] TileBase _water = null;
+    [SerializeField] TileBase _snow_light = null;
+
 
     [Header("Temperature/Moisture Thresholds")]
     [SerializeField] float _dryThreshold = 0.3f;
     [SerializeField] float _wetThreshold = 0.7f;
     [SerializeField] float _coldThreshold = 0.3f;
     [SerializeField] float _hotThreshold = 0.7f;
+    [SerializeField] float _thresholdTolerance = 0.1f;
 
     [Header("Population Tile Examples")]
     [SerializeField] TileBase _pavers_middle = null;
@@ -57,6 +65,11 @@ public class TileStatsRenderer : MonoBehaviour
 
     [Header("Path Tile Examples")]
     [SerializeField] TileBase _path_brown = null;
+
+    Vector3Int _north = new Vector3Int(0, 1,0);
+    Vector3Int _south = new Vector3Int(0, -1,0);
+    Vector3Int _east = new Vector3Int(1, 0,0);
+    Vector3Int _west = new Vector3Int(-1, 0,0);
 
     private void Awake()
     {
@@ -91,7 +104,6 @@ public class TileStatsRenderer : MonoBehaviour
 
     private void RenderBaseTile(Vector3Int coord, TileStats td)
     {
-        ClearAllBaseTiles(coord);
         MoistureCategory moistureCategory = ConvertMoistureIntoMoistureCat(td.Moisture);
         TemperatureCategory tempCat = ConvertTemperatureIntoTempCat(td.Temperature);
         TileBase tile = _grass;
@@ -101,16 +113,28 @@ public class TileStatsRenderer : MonoBehaviour
                 switch (tempCat)
                 {
                     case TemperatureCategory.Cold:
-                        tile = _snow;
-                        _tilemap_snow.SetTile(coord, tile);
+                        tile = _darkland;
+                        _tilemap_darkland.SetTile(coord, tile);
+                        _tilemap_darkland.SetTile(coord + _north, tile);
+                        _tilemap_darkland.SetTile(coord + _south, tile);
+                        _tilemap_darkland.SetTile(coord + _east, tile);
+                        _tilemap_darkland.SetTile(coord+_west, tile);
                         break;
                     case TemperatureCategory.MidTemp:
                         tile = _pack;
                         _tilemap_pack.SetTile(coord, tile);
+                        _tilemap_pack.SetTile(coord + _north, tile);
+                        _tilemap_pack.SetTile(coord + _south, tile);
+                        _tilemap_pack.SetTile(coord + _east, tile);
+                        _tilemap_pack.SetTile(coord + _west, tile);
                         break;
                     case TemperatureCategory.Hot:
                         tile = _sand;
                         _tilemap_sand.SetTile(coord, tile);
+                        _tilemap_sand.SetTile(coord + _north, tile);
+                        _tilemap_sand.SetTile(coord + _south, tile);
+                        _tilemap_sand.SetTile(coord + _east, tile);
+                        _tilemap_sand.SetTile(coord + _west, tile);
                         break;
                 }
                 break;
@@ -121,14 +145,26 @@ public class TileStatsRenderer : MonoBehaviour
                     case TemperatureCategory.Cold:
                         tile = _snow;
                         _tilemap_snow.SetTile(coord, tile);
+                        _tilemap_snow.SetTile(coord + _north, tile);
+                        _tilemap_snow.SetTile(coord + _south, tile);
+                        _tilemap_snow.SetTile(coord + _east, tile);
+                        _tilemap_snow.SetTile(coord + _west, tile);
                         break;
                     case TemperatureCategory.MidTemp:
                         tile = _grass;
                         _tilemap_grass.SetTile(coord, tile);
+                        _tilemap_grass.SetTile(coord + _north, tile);
+                        _tilemap_grass.SetTile(coord + _south, tile);
+                        _tilemap_grass.SetTile(coord + _east, tile);
+                        _tilemap_grass.SetTile(coord + _west, tile);
                         break;
                     case TemperatureCategory.Hot:
-                        tile = _sand;
-                        _tilemap_sand.SetTile(coord, tile);
+                        tile = _grass_light;
+                        _tilemap_grass_light.SetTile(coord, tile);
+                        _tilemap_grass_light.SetTile(coord + _north, tile);
+                        _tilemap_grass_light.SetTile(coord + _south, tile);
+                        _tilemap_grass_light.SetTile(coord + _east, tile);
+                        _tilemap_grass_light.SetTile(coord + _west, tile);
                         break;
                 }
                 break;
@@ -137,16 +173,28 @@ public class TileStatsRenderer : MonoBehaviour
                 switch (tempCat)
                 {
                     case TemperatureCategory.Cold:
-                        tile = _snow;
-                        _tilemap_snow.SetTile(coord, tile);
+                        tile = _snow_light;
+                        _tilemap_snow_light.SetTile(coord, tile);
+                        _tilemap_snow_light.SetTile(coord + _north, tile);
+                        _tilemap_snow_light.SetTile(coord + _south, tile);
+                        _tilemap_snow_light.SetTile(coord + _east, tile);
+                        _tilemap_snow_light.SetTile(coord + _west, tile);
                         break;
                     case TemperatureCategory.MidTemp:
                         tile = _swamp;
                         _tilemap_swamp.SetTile(coord, tile);
+                        _tilemap_swamp.SetTile(coord + _north, tile);
+                        _tilemap_swamp.SetTile(coord + _south, tile);
+                        _tilemap_swamp.SetTile(coord + _east, tile);
+                        _tilemap_swamp.SetTile(coord + _west, tile);
                         break;
                     case TemperatureCategory.Hot:
-                        tile = _sand;
-                        _tilemap_sand.SetTile(coord, tile);
+                        tile = _swamp_light;
+                        _tilemap_swamp_light.SetTile(coord, tile);
+                        _tilemap_swamp_light.SetTile(coord + _north, tile);
+                        _tilemap_swamp_light.SetTile(coord + _south, tile);
+                        _tilemap_swamp_light.SetTile(coord + _east, tile);
+                        _tilemap_swamp_light.SetTile(coord + _west, tile);
                         break;
                 }
                 break;
@@ -154,15 +202,27 @@ public class TileStatsRenderer : MonoBehaviour
 
     }
 
-    private void ClearAllBaseTiles(Vector3Int coord)
+    public void ClearAllBaseTiles()
     {
-        _tilemap_sand.SetTile(coord, null);
-        _tilemap_swamp.SetTile(coord, null);
-        _tilemap_grass.SetTile(coord, null);
-        _tilemap_pack.SetTile(coord, null);
-        _tilemap_snow.SetTile(coord, null);
-        _tilemap_river.SetTile(coord, null);
-        _tilemap_water.SetTile(coord, null);
+        _tilemap_darkland.ClearAllTiles();
+        _tilemap_pack.ClearAllTiles();
+        _tilemap_sand.ClearAllTiles();
+        _tilemap_grass.ClearAllTiles();
+        _tilemap_grass_light.ClearAllTiles();
+        _tilemap_swamp.ClearAllTiles();
+        _tilemap_swamp_light.ClearAllTiles();
+        _tilemap_snow.ClearAllTiles();
+        _tilemap_snow_light.ClearAllTiles();
+
+        //_tilemap_darkland.SetTile(coord, null);
+        //_tilemap_pack.SetTile(coord, null);
+        //_tilemap_sand.SetTile(coord, null);
+        //_tilemap_grass.SetTile(coord, null);
+        //_tilemap_grass_light.SetTile(coord, null);
+        //_tilemap_swamp.SetTile(coord, null);
+        //_tilemap_swamp_light.SetTile(coord, null);
+        //_tilemap_snow.SetTile(coord, null);
+        //_tilemap_snow_light.SetTile(coord, null);
     }
 
     private void RenderPopulationTile(Vector3Int coord, TileStats td)
