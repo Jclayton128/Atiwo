@@ -6,13 +6,15 @@ public class TileStatsRandomizer : MonoBehaviour
 {
     System.Random rnd;
 
+    [SerializeField] float _noiseScale = 1f;
+
     private void Start()
     {
         rnd = new System.Random(RandomController.Instance.CurrentSeed);
     }
 
     [ContextMenu("Randomly Populate Map")]
-    private void RandomlyPopulateTemperatureAndMoisture()
+    public void RandomlyPopulateTemperatureAndMoisture()
     {
         float tempOffset = (float)rnd.NextDouble();       
         float moistOffset = (float)rnd.NextDouble();
@@ -30,13 +32,13 @@ public class TileStatsRandomizer : MonoBehaviour
 
                 float temp =
                     Mathf.Clamp01(Mathf.PerlinNoise(
-                        ((float)x / TileStatsHolder.Instance.Dimension) + tempOffset,
-                        ((float)y / TileStatsHolder.Instance.Dimension) + tempOffset));
+                        ((float)x / TileStatsHolder.Instance.Dimension * _noiseScale) + tempOffset,
+                        ((float)y / TileStatsHolder.Instance.Dimension * _noiseScale) + tempOffset));
 
                 float moisture =
                     Mathf.Clamp01(Mathf.PerlinNoise(
-                        ((float)x / TileStatsHolder.Instance.Dimension) + moistOffset,
-                        ((float)y / TileStatsHolder.Instance.Dimension) + moistOffset));
+                        ((float)x / TileStatsHolder.Instance.Dimension * _noiseScale) + moistOffset,
+                        ((float)y / TileStatsHolder.Instance.Dimension * _noiseScale) + moistOffset));
 
                 TileStatsHolder.Instance.SetTemperatureAtTile(coords, temp);
                 TileStatsHolder.Instance.SetMoistureAtTile(coords, moisture);

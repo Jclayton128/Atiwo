@@ -16,7 +16,7 @@ public class RandomController : MonoBehaviour
     }
 
     [ContextMenu("Generate New Random Seed")]
-    private void GenerateNewRandomSeed()
+    public void GenerateNewRandomSeed()
     {
         _randomSeed = Random.Range(0, int.MaxValue);
     }
