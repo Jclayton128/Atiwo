@@ -213,16 +213,19 @@ public class TileStatsRenderer : MonoBehaviour
         _tilemap_swamp_light.ClearAllTiles();
         _tilemap_snow.ClearAllTiles();
         _tilemap_snow_light.ClearAllTiles();
+    }
 
-        //_tilemap_darkland.SetTile(coord, null);
-        //_tilemap_pack.SetTile(coord, null);
-        //_tilemap_sand.SetTile(coord, null);
-        //_tilemap_grass.SetTile(coord, null);
-        //_tilemap_grass_light.SetTile(coord, null);
-        //_tilemap_swamp.SetTile(coord, null);
-        //_tilemap_swamp_light.SetTile(coord, null);
-        //_tilemap_snow.SetTile(coord, null);
-        //_tilemap_snow_light.SetTile(coord, null);
+    public void ClearBaseTilesAtCoord(Vector3Int coord)
+    {
+        _tilemap_darkland.SetTile(coord, null);
+        _tilemap_pack.SetTile(coord, null);
+        _tilemap_sand.SetTile(coord, null);
+        _tilemap_grass.SetTile(coord, null);
+        _tilemap_grass_light.SetTile(coord, null);
+        _tilemap_swamp.SetTile(coord, null);
+        _tilemap_swamp_light.SetTile(coord, null);
+        _tilemap_snow.SetTile(coord, null);
+        _tilemap_snow_light.SetTile(coord, null);
     }
 
     private void RenderPopulationTile(Vector3Int coord, TileStats td)

@@ -23,7 +23,7 @@ public class CursorController : MonoBehaviour
     {
         UpdateCursorInspection();
         UpdateCursorAdjustments_Debug();
-        //UpdateCursorClick();
+        UpdateCursorClick();
     }
 
     private void UpdateCursorClick()
@@ -51,6 +51,8 @@ public class CursorController : MonoBehaviour
                 TileStatsHolder.Instance.ModifyVegetationAtTile(_cursorCellCoord, _vegAdjustAmount);
             }
 
+
+            TileStatsRenderer.Instance.ClearBaseTilesAtCoord(_cursorCellCoord);
             TileStatsRenderer.Instance.RenderSingleCellByCoord(_cursorCellCoord);
         }
     }

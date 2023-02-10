@@ -115,7 +115,13 @@ public class TileStatsHolder : MonoBehaviour
     public TileStats GetTileDataAtTileCoord(Vector3Int tileCoord)
     {
         TileStats td = new TileStats();
-
+        if (tileCoord.x >= _tileDimension
+            || tileCoord.y >= _tileDimension
+            || tileCoord.z >= _tileDimension)
+        {
+            Debug.LogWarning("Invalid tile coord");
+            return td;
+        }
         td.Temperature = _temperatureMap[tileCoord];
         td.Moisture = _moistureMap[tileCoord];
         td.Population = _populationMap[tileCoord];

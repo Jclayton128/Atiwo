@@ -13,6 +13,7 @@ public class RandomController : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        GenerateNewRandomSeed();
     }
 
     [ContextMenu("Generate New Random Seed")]
