@@ -180,4 +180,19 @@ public class TileStatsHolder : MonoBehaviour
 
         return td;
     }
+
+    public float GetElevationAtCoord(Vector3Int coord)
+    {
+        if (_elevationMap.ContainsKey(coord)) return _elevationMap[coord];
+        else return 0;
+    }
+
+    public (float, float) GetPrimaryStatsAtCoord(Vector3Int tileCoord)
+    {
+        (float, float) stats;
+        stats.Item1 = _temperatureMap[tileCoord];
+        stats.Item2 = _moistureMap[tileCoord];
+
+        return stats;
+    }
 }

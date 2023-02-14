@@ -62,7 +62,7 @@ public class TileStatsRandomizer : MonoBehaviour
                         ((float)y / TileStatsHolder.Instance.Dimension * _noiseScale_macro) + elevationOffset_1));
 
                 elevation +=
-                    Mathf.Lerp(-.3f, .3f, (Mathf.PerlinNoise(
+                    Mathf.Lerp(-.1f, .1f, (Mathf.PerlinNoise(
                         ((float)x / TileStatsHolder.Instance.Dimension * _noiseScale_micro) + elevationOffset_2,
                         ((float)y / TileStatsHolder.Instance.Dimension * _noiseScale_micro) + elevationOffset_2)));
 

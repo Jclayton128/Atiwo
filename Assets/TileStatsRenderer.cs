@@ -15,6 +15,8 @@ public class TileStatsRenderer : MonoBehaviour
     private enum MoistureCategory { Dry, MidWet, Wet, River, Water}
     private enum TemperatureCategory { Cold, MidTemp, Hot}
 
+    private enum BeachCategory { None, Brown, Sand}
+
 
     public static TileStatsRenderer Instance;
 
@@ -220,13 +222,42 @@ public class TileStatsRenderer : MonoBehaviour
         }
         else if (td.Elevation <= _waterThreshold)
         {
-            _tilemap_water.SetTile(coord, _water);
+            switch (GetBeachCategory(coord))
+            {
+                case BeachCategory.None:
+                    _tilemap_water.SetTile(coord, _water);
+                    break;
+
+                case BeachCategory.Brown:
+                    _tilemap_water.SetTile(coord, _water);
+                    break;
+
+                case BeachCategory.Sand:
+                    _tilemap_water.SetTile(coord, _water);
+                    break;
+            }
+
+
             //return;
         }
         else
         {
             _tilemap_water.SetTile(coord, null);
         }
+    }
+
+    private BeachCategory GetBeachCategory(Vector3Int coord)
+    {
+        if ((TileStatsHolder.Instance.GetElevationAtCoord(coord + _north) <= _waterThreshold) ||
+            (TileStatsHolder.Instance.GetElevationAtCoord(coord + _east) <= _waterThreshold) ||
+            (TileStatsHolder.Instance.GetElevationAtCoord(coord + _south) <= _waterThreshold) ||
+            (TileStatsHolder.Instance.GetElevationAtCoord(coord + _west) <= _waterThreshold))
+        {
+            return BeachCategory.None;
+        }
+
+        return BeachCategory.None;
+ 
     }
 
     public void ClearAllBaseTiles()
