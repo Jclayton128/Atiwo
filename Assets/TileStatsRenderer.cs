@@ -46,6 +46,8 @@ public class TileStatsRenderer : MonoBehaviour
     [SerializeField] TileBase _swamp_light = null;
     [SerializeField] TileBase _snow = null;
     [SerializeField] TileBase _snow_light = null;
+    [SerializeField] TileBase _water = null;
+    [SerializeField] TileBase _water_deep = null;
 
 
     [Header("Temperature/Moisture Thresholds")]
@@ -54,6 +56,10 @@ public class TileStatsRenderer : MonoBehaviour
     [SerializeField] float _coldThreshold = 0.3f;
     [SerializeField] float _hotThreshold = 0.7f;
     [SerializeField] float _thresholdTolerance = 0.1f;
+    [SerializeField] float _deepwaterThreshold = 0.15f;
+    public float DeepwaterThreshold => _deepwaterThreshold;
+    [SerializeField] float _waterThreshold = 0.3f;
+    public float WaterThreshold => _waterThreshold;
 
     [Header("Population Tile Examples")]
     [SerializeField] TileBase _pavers_middle = null;
@@ -97,6 +103,7 @@ public class TileStatsRenderer : MonoBehaviour
         TileStats td = TileStatsHolder.Instance.GetTileDataAtTileCoord(coord);
 
         RenderBaseTile(coord, td);
+        RenderWaterTile(coord, td);
         RenderPopulationTile(coord, td);
         RenderTrafficTile(coord, td);
         RenderVegetationTile(coord, td);
@@ -104,6 +111,8 @@ public class TileStatsRenderer : MonoBehaviour
 
     private void RenderBaseTile(Vector3Int coord, TileStats td)
     {
+
+
         MoistureCategory moistureCategory = ConvertMoistureIntoMoistureCat(td.Moisture);
         TemperatureCategory tempCat = ConvertTemperatureIntoTempCat(td.Temperature);
         TileBase tile = _grass;
@@ -200,6 +209,24 @@ public class TileStatsRenderer : MonoBehaviour
                 break;
         }
 
+    }
+
+    private void RenderWaterTile(Vector3Int coord, TileStats td)
+    {
+        if (td.Elevation <= _deepwaterThreshold)
+        {
+            _tilemap_water.SetTile(coord, _water_deep);
+            //return;
+        }
+        else if (td.Elevation <= _waterThreshold)
+        {
+            _tilemap_water.SetTile(coord, _water);
+            //return;
+        }
+        else
+        {
+            _tilemap_water.SetTile(coord, null);
+        }
     }
 
     public void ClearAllBaseTiles()

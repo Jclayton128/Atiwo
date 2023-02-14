@@ -10,7 +10,12 @@ public class TileStatsHolder : MonoBehaviour
     /// This holds multiple Dictionary<Vec2Int, float>, one for each tile data parameter (temperature, moisture, etc).
     /// 
     /// </summary>
-    
+    /// 
+    Vector3Int _north = new Vector3Int(0, 1, 0);
+    Vector3Int _south = new Vector3Int(0, -1, 0);
+    Vector3Int _east = new Vector3Int(1, 0, 0);
+    Vector3Int _west = new Vector3Int(-1, 0, 0);
+
     public static TileStatsHolder Instance;
     Grid _grid;
 
@@ -22,6 +27,7 @@ public class TileStatsHolder : MonoBehaviour
     public int Dimension => _tileDimension;
     Dictionary<Vector3Int, float> _temperatureMap = new Dictionary<Vector3Int, float>();
     Dictionary<Vector3Int, float> _moistureMap = new Dictionary<Vector3Int, float>();
+    Dictionary<Vector3Int, float> _elevationMap = new Dictionary<Vector3Int, float>();
 
     Dictionary<Vector3Int, float> _trafficMap = new Dictionary<Vector3Int, float>();
     Dictionary<Vector3Int, float> _vegetationMap = new Dictionary<Vector3Int, float>();
@@ -42,6 +48,7 @@ public class TileStatsHolder : MonoBehaviour
     {
         _temperatureMap.Clear();
         _moistureMap.Clear();
+        _elevationMap.Clear();
         _trafficMap.Clear();
         _vegetationMap.Clear();
         _populationMap.Clear();
@@ -54,7 +61,8 @@ public class TileStatsHolder : MonoBehaviour
                 coord.x = x;
                 coord.y = y;
                 _temperatureMap.Add(coord, _startingValue);
-                _moistureMap.Add(coord, _startingValue); 
+                _moistureMap.Add(coord, _startingValue);
+                _elevationMap.Add(coord, _startingValue);
                 _trafficMap.Add(coord, 0); 
                 _vegetationMap.Add(coord, 0);
                 _populationMap.Add(coord, 0);
@@ -84,6 +92,16 @@ public class TileStatsHolder : MonoBehaviour
         _moistureMap[tileCoord] = moisture;
     }
 
+    public void ModifyElevationAtTile(Vector3Int tileCoord, float elevationChange)
+    {
+        _elevationMap[tileCoord] += elevationChange;
+    }
+
+    public void SetElevationAtTile(Vector3Int tileCoord, float elevation)
+    {
+        _elevationMap[tileCoord] = elevation;
+    }
+
     public void ModifyPopulationAtTile(Vector3Int tileCoord, float populationChange)
     {
         _populationMap[tileCoord] += populationChange;
@@ -92,6 +110,37 @@ public class TileStatsHolder : MonoBehaviour
     public void ModifyTrafficAtTile(Vector3Int tileCoord, float trafficChange)
     {
         _trafficMap[tileCoord] += trafficChange;
+    }
+
+    internal void EnforceDeepWaterWithWaterAsNeighbor(Vector3Int coords)
+    {
+        if (_elevationMap.ContainsKey(coords + _north))
+        {
+            _elevationMap[coords + _north] = Mathf.Clamp(
+                _elevationMap[coords + _north],
+                0, TileStatsRenderer.Instance.WaterThreshold);
+        }
+
+        if (_elevationMap.ContainsKey(coords + _south))
+        {
+            _elevationMap[coords + _south] = Mathf.Clamp(
+                _elevationMap[coords + _south],
+                0, TileStatsRenderer.Instance.WaterThreshold);
+        }
+
+        if (_elevationMap.ContainsKey(coords + _west))
+        {
+            _elevationMap[coords + _west] = Mathf.Clamp(
+                _elevationMap[coords + _west],
+                0, TileStatsRenderer.Instance.WaterThreshold);
+        }
+
+        if (_elevationMap.ContainsKey(coords + _east))
+        {
+            _elevationMap[coords + _east] = Mathf.Clamp(
+                _elevationMap[coords + _east],
+                0, TileStatsRenderer.Instance.WaterThreshold);
+        }
     }
 
     public void ModifyVegetationAtTile(Vector3Int tileCoord, float vegetationChange)
@@ -124,6 +173,7 @@ public class TileStatsHolder : MonoBehaviour
         }
         td.Temperature = _temperatureMap[tileCoord];
         td.Moisture = _moistureMap[tileCoord];
+        td.Elevation = _elevationMap[tileCoord];
         td.Population = _populationMap[tileCoord];
         td.Traffic = _trafficMap[tileCoord];
         td.Vegetation = _vegetationMap[tileCoord];
