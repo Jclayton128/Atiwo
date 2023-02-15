@@ -4,7 +4,17 @@ using UnityEngine;
 
 public static class GridSearch
 {
-    public static bool SpiralSearch_BelowMin(float[,] grid, float valueToBeBelow, out int row, out int col)
+    /// <summary>
+    /// Attempts to provide a coordinate for a cell that is under the target
+    /// value, with a low-side tolerance. 
+    /// </summary>
+    /// <param name="grid"></param>
+    /// <param name="targetValue"></param>
+    /// <param name="tolerance"></param>
+    /// <param name="row"></param>
+    /// <param name="col"></param>
+    /// <returns></returns>
+    public static bool SpiralSearch_ClosestToMinValue(float[,] grid, float targetValue, float tolerance, out int row, out int col)
     {
         row = col = (grid.GetLength(0) - 1) / 2; // Start at the center of the grid
 
@@ -13,7 +23,8 @@ public static class GridSearch
 
         while (row >= 0 && row < grid.GetLength(0) && col >= 0 && col < grid.GetLength(1))
         {
-            if (grid[row, col] < valueToBeBelow)
+            if (grid[row, col] < targetValue &&
+                grid[row, col] > targetValue - tolerance)
             {
                 return true; // Found the target value
             }
@@ -38,6 +49,7 @@ public static class GridSearch
             }
         }
 
+        Debug.Log("Couldn't find within search parameters");
         return false; // Target value not found
     }
 

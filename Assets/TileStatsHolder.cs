@@ -39,6 +39,7 @@ public class TileStatsHolder : MonoBehaviour
     float[,] _trafficMap;
     float[,] _vegetationMap;
     float[,] _populationMap;
+    bool[,] _riverMap;
 
     private void Awake()
     {
@@ -49,6 +50,7 @@ public class TileStatsHolder : MonoBehaviour
         _trafficMap = new float[_tileDimension, _tileDimension];
         _vegetationMap = new float[_tileDimension, _tileDimension];
         _populationMap = new float[_tileDimension, _tileDimension];
+        _riverMap = new bool[_tileDimension, _tileDimension];
 
         _grid = GetComponent<Grid>();
     }
@@ -66,6 +68,7 @@ public class TileStatsHolder : MonoBehaviour
         Array.Clear(_trafficMap, 0, _tileDimension);
         Array.Clear(_vegetationMap, 0, _tileDimension);
         Array.Clear(_populationMap, 0, _tileDimension);
+        Array.Clear(_riverMap, 0, _tileDimension);
 
         Vector3Int coord = new Vector3Int(0, 0,0);
         for (int x = 0; x < _tileDimension; x++)
@@ -81,6 +84,7 @@ public class TileStatsHolder : MonoBehaviour
                 _trafficMap[x,y] =  0;
                 _vegetationMap[x,y] =  0;
                 _populationMap[x,y] =  0;
+                _riverMap[x, y] = false;
             }
         }
     }
@@ -183,6 +187,11 @@ public class TileStatsHolder : MonoBehaviour
         _vegetationMap[xCoord,yCoord] += vegetationChange;
     }
 
+    public void ModifyRiverStatusAtTile(int xCoord, int yCoord, bool isRiver)
+    {
+        _riverMap[xCoord, yCoord] = isRiver;
+    }
+
     #endregion
 
     public Vector3Int GetTileCoord(Vector3 worldPos)
@@ -235,15 +244,58 @@ public class TileStatsHolder : MonoBehaviour
         return stats;
     }
 
-    public (int,int) FindRandomWaterSpot()
+    public (int,int) FindRandomBeachCoord()
     {
-        float waterThreshold = TileStatsRenderer.Instance.WaterThreshold;
+        float targetValue = TileStatsRenderer.Instance.WaterThreshold;
         int row;
         int col;
-        GridSearch.SpiralSearch_BelowMin(_elevationMap, waterThreshold,
+        if (!GridSearch.SpiralSearch_ClosestToMinValue(_elevationMap, targetValue, 0.03f,
+            out row, out col))
+        {
+            GridSearch.SpiralSearch_ClosestToMinValue(_elevationMap, targetValue, 0.09f,
             out row, out col);
+        }
 
         Debug.Log($"found a central water spot at {row},{col}");
         return (row, col);
+    }
+
+    public (int,int) FindNeighborCoordWithGreatestElevationIncrease(int xCoord, int yCoord)
+    {
+        (int, int) nay = (xCoord, yCoord); //default to north if identical
+        float delta = 0;
+        float currentElev = _elevationMap[xCoord, yCoord];
+
+        //north
+        if ( yCoord + 1 < _tileDimension &&
+            _elevationMap[xCoord, yCoord + 1]  > currentElev + delta)
+        {
+            delta = _elevationMap[xCoord, yCoord + 1] - currentElev;
+            nay = (xCoord, yCoord + 1);
+        }
+        //east
+        if (xCoord +1 < _tileDimension && 
+            _elevationMap[xCoord + 1, yCoord] > currentElev + delta)
+        {
+            delta = _elevationMap[xCoord + 1, yCoord ] - currentElev;
+            nay = (xCoord + 1, yCoord);
+        }
+        //south
+        if (yCoord - 1 >= 0 && 
+            _elevationMap[xCoord, yCoord-1] > currentElev + delta)
+        {
+            delta = _elevationMap[xCoord, yCoord - 1] - currentElev;
+            nay = (xCoord, yCoord - 1);
+        }
+        //west
+        if (xCoord -1 >= 0 && 
+            _elevationMap[xCoord - 1, yCoord] > currentElev + delta)
+        {
+            delta = _elevationMap[xCoord-1, yCoord] - currentElev;
+            nay = (xCoord - 1, yCoord);
+        }
+
+        return nay;
+
     }
 }

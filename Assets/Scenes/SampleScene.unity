@@ -1670,6 +1670,7 @@ MonoBehaviour:
   _snow_light: {fileID: 11400000, guid: 9e81229c8a0a3cf41a6c082c7e7f26fd, type: 2}
   _water: {fileID: 11400000, guid: ac446326b45e8954a8bbcd4ff846ef97, type: 2}
   _water_deep: {fileID: 11400000, guid: fc4667b65ef7f2c4086fc9b082d5bc90, type: 2}
+  _river_slow: {fileID: 11400000, guid: 396d07cd124817b4ea1f21c50136ee29, type: 2}
   _dryThreshold: 0.3
   _wetThreshold: 0.7
   _coldThreshold: 0.3

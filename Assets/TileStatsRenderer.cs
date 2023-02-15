@@ -50,6 +50,7 @@ public class TileStatsRenderer : MonoBehaviour
     [SerializeField] TileBase _snow_light = null;
     [SerializeField] TileBase _water = null;
     [SerializeField] TileBase _water_deep = null;
+    [SerializeField] TileBase _river_slow = null;
 
 
     [Header("Temperature/Moisture Thresholds")]
@@ -272,6 +273,9 @@ public class TileStatsRenderer : MonoBehaviour
         _tilemap_swamp_light.ClearAllTiles();
         _tilemap_snow.ClearAllTiles();
         _tilemap_snow_light.ClearAllTiles();
+
+        _tilemap_water.ClearAllTiles();
+        _tilemap_river.ClearAllTiles();
     }
 
     public void ClearBaseTilesAtCoord(Vector3Int coord)
@@ -285,6 +289,11 @@ public class TileStatsRenderer : MonoBehaviour
         _tilemap_swamp_light.SetTile(coord, null);
         _tilemap_snow.SetTile(coord, null);
         _tilemap_snow_light.SetTile(coord, null);
+    }
+
+    public void RenderRiverTile(Vector3Int coord)
+    {
+        _tilemap_water.SetTile(coord, _river_slow);
     }
 
     private void RenderPopulationTile(Vector3Int coord, TileStats td)

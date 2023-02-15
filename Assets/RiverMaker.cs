@@ -7,21 +7,57 @@ public class RiverMaker : MonoBehaviour
 {
     [SerializeField] 
     [Tooltip("Approximately how many tiles the river will go before terminating")]
-    float _riverVolume = 10f; 
+    float _riverVolume = 10; 
 
-    [ContextMenu("Create River")]
-    public void CreateRiver()
+    [ContextMenu("Start River Creation")]
+    public void StartRiverCreation()
+    {
+        StartCoroutine(nameof(Fade));        
+    }
+    IEnumerator Fade()
     {
         // Find a low spot on the map that is water, and
         // that isn't too close to another river.
         // Make a river iteratively, going from the sea up to the local maxima,
         // or until the river runs out of water.
 
-        (int,int) startingSpot = TileStatsHolder.Instance.FindRandomWaterSpot();
+        (int, int) currentSpot = FindStartingSpot();
+
+        float remainingVolume = _riverVolume;
+        int breaker = 100;
+        while (remainingVolume > 0)
+        {
+            currentSpot = AdvanceRiver(currentSpot);
+            float moisture = TileStatsHolder.Instance.GetPrimaryStatsAtCoord(
+                currentSpot.Item1, currentSpot.Item2).Item2;
+            remainingVolume += (moisture - .8f);
+            breaker--;
+            if (breaker <= 0)
+            {
+                Debug.LogWarning("Breaker engaged!");
+                break;
+            }
+            yield return new WaitForSeconds(.5f);
+        }
     }
 
-    private Vector3Int FindStartingSpot()
+
+    private (int, int) AdvanceRiver((int, int) currentRiverLocation)
     {
-        return Vector3Int.zero;
+        (int,int) neighbor = TileStatsHolder.Instance.FindNeighborCoordWithGreatestElevationIncrease(
+            currentRiverLocation.Item1, currentRiverLocation.Item2);
+
+        TileStatsHolder.Instance.ModifyRiverStatusAtTile(
+            neighbor.Item1, neighbor.Item2, true);
+        Vector3Int newloc = new Vector3Int(neighbor.Item1, neighbor.Item2, 0);
+        TileStatsRenderer.Instance.RenderRiverTile(newloc);
+        return neighbor;
+    }
+
+    private (int,int) FindStartingSpot()
+    {
+        //return a shallow water tile that is at least a certain distance away
+        // from an existing starting spot.
+        return TileStatsHolder.Instance.FindRandomBeachCoord();
     }
 }
