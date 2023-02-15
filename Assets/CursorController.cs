@@ -32,28 +32,45 @@ public class CursorController : MonoBehaviour
         {
             if (Mathf.Abs(_moistureAdjustAmount) >= 0.1)
             {
-                TileStatsHolder.Instance.ModifyMoistureAtTile(_cursorCellCoord, _moistureAdjustAmount);
+                TileStatsHolder.Instance.ModifyMoistureAtTile(
+                    _cursorCellCoord.x,
+                    _cursorCellCoord.y,
+                    _moistureAdjustAmount);
             }
             if (Mathf.Abs(_tempAdjustAmount) >= 0.1)
             {
-                TileStatsHolder.Instance.ModifyTemperatureAtTile(_cursorCellCoord, _tempAdjustAmount);
+                TileStatsHolder.Instance.ModifyTemperatureAtTile(
+                    _cursorCellCoord.x,
+                    _cursorCellCoord.y,
+                    _tempAdjustAmount);
             }
             if (Mathf.Abs(_popAdjustAmount) >= 0.1)
             {
-                TileStatsHolder.Instance.ModifyPopulationAtTile(_cursorCellCoord, _popAdjustAmount);
+                TileStatsHolder.Instance.ModifyPopulationAtTile(
+                    _cursorCellCoord.x,
+                    _cursorCellCoord.y,
+                    _popAdjustAmount);
             }
             if (Mathf.Abs(_trafficAdjustAmount) >= 0.1)
             {
-                TileStatsHolder.Instance.ModifyTrafficAtTile(_cursorCellCoord, _trafficAdjustAmount);
+                TileStatsHolder.Instance.ModifyTrafficAtTile(
+                    _cursorCellCoord.x,
+                    _cursorCellCoord.y,
+                    _trafficAdjustAmount);
             }
             if (Mathf.Abs(_vegAdjustAmount) >= 0.1)
             {
-                TileStatsHolder.Instance.ModifyVegetationAtTile(_cursorCellCoord, _vegAdjustAmount);
+                TileStatsHolder.Instance.ModifyVegetationAtTile(
+                    _cursorCellCoord.x,
+                    _cursorCellCoord.y,
+                    _vegAdjustAmount);
             }
 
 
-            TileStatsRenderer.Instance.ClearBaseTilesAtCoord(_cursorCellCoord);
-            TileStatsRenderer.Instance.RenderSingleCellByCoord(_cursorCellCoord);
+            TileStatsRenderer.Instance.
+                ClearBaseTilesAtCoord(_cursorCellCoord);
+            TileStatsRenderer.Instance.
+                RenderSingleCellByCoord(_cursorCellCoord.x,_cursorCellCoord.y);
         }
     }
 
@@ -141,7 +158,8 @@ public class CursorController : MonoBehaviour
         _cursorCellCoord = TileStatsHolder.Instance.GetTileCoord(_cursorWorldPos);
 
         UI_TileInspector.Instance.SetTileCoords(_cursorCellCoord);
-        TileStats td = TileStatsHolder.Instance.GetTileDataAtTileCoord(_cursorCellCoord);
+        TileStats td = TileStatsHolder.Instance.
+            GetTileDataAtTileCoord(_cursorCellCoord.x,_cursorCellCoord.y);
 
         UI_TileInspector.Instance.SetTemperature(td.Temperature);
         UI_TileInspector.Instance.SetMoisture(td.Moisture);

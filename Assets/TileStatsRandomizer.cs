@@ -28,14 +28,10 @@ public class TileStatsRandomizer : MonoBehaviour
 
         TileStatsRenderer.Instance.ClearAllBaseTiles();
 
-        Vector3Int coords = new Vector3Int(0, 0, 0);
         for (int x = 0; x < TileStatsHolder.Instance.Dimension; x++)
         {
             for (int y = 0; y < TileStatsHolder.Instance.Dimension; y++)
             {
-                coords.x = x;
-                coords.y = y;
-
                 float temp =
                     Mathf.Clamp01(Mathf.PerlinNoise(
                         ((float)x / TileStatsHolder.Instance.Dimension * _noiseScale_macro) + tempOffset_1,
@@ -68,13 +64,13 @@ public class TileStatsRandomizer : MonoBehaviour
 
                 if (elevation <= TileStatsRenderer.Instance.DeepwaterThreshold)
                 {
-                    TileStatsHolder.Instance.EnforceDeepWaterWithWaterAsNeighbor(coords);
+                    TileStatsHolder.Instance.EnforceDeepWaterWithWaterAsNeighbor(x,y);
                 }
 
-                TileStatsHolder.Instance.SetTemperatureAtTile(coords, temp);
-                TileStatsHolder.Instance.SetMoistureAtTile(coords, moisture);
-                TileStatsHolder.Instance.SetElevationAtTile(coords, elevation);
-                TileStatsRenderer.Instance.RenderSingleCellByCoord(coords);
+                TileStatsHolder.Instance.SetTemperatureAtTile(x,y, temp);
+                TileStatsHolder.Instance.SetMoistureAtTile(x,y, moisture);
+                TileStatsHolder.Instance.SetElevationAtTile(x,y, elevation);
+                TileStatsRenderer.Instance.RenderSingleCellByCoord(x,y);
             }
         }
     }

@@ -25,17 +25,31 @@ public class TileStatsHolder : MonoBehaviour
 
     //state
     public int Dimension => _tileDimension;
-    Dictionary<Vector3Int, float> _temperatureMap = new Dictionary<Vector3Int, float>();
-    Dictionary<Vector3Int, float> _moistureMap = new Dictionary<Vector3Int, float>();
-    Dictionary<Vector3Int, float> _elevationMap = new Dictionary<Vector3Int, float>();
+    //Dictionary<Vector3Int, float> _temperatureMap = new Dictionary<Vector3Int, float>();
+    //Dictionary<Vector3Int, float> _moistureMap = new Dictionary<Vector3Int, float>();
+    //Dictionary<Vector3Int, float> _elevationMap = new Dictionary<Vector3Int, float>();
 
-    Dictionary<Vector3Int, float> _trafficMap = new Dictionary<Vector3Int, float>();
-    Dictionary<Vector3Int, float> _vegetationMap = new Dictionary<Vector3Int, float>();
-    Dictionary<Vector3Int, float> _populationMap = new Dictionary<Vector3Int, float>();
+    //Dictionary<Vector3Int, float> _trafficMap = new Dictionary<Vector3Int, float>();
+    //Dictionary<Vector3Int, float> _vegetationMap = new Dictionary<Vector3Int, float>();
+    //Dictionary<Vector3Int, float> _populationMap = new Dictionary<Vector3Int, float>();
+
+    float[,] _temperatureMap;
+    float[,] _moistureMap;
+    float[,] _elevationMap;
+    float[,] _trafficMap;
+    float[,] _vegetationMap;
+    float[,] _populationMap;
 
     private void Awake()
     {
         Instance = this;
+        _temperatureMap = new float[_tileDimension, _tileDimension];
+        _moistureMap = new float[_tileDimension, _tileDimension];
+        _elevationMap = new float[_tileDimension, _tileDimension];
+        _trafficMap = new float[_tileDimension, _tileDimension];
+        _vegetationMap = new float[_tileDimension, _tileDimension];
+        _populationMap = new float[_tileDimension, _tileDimension];
+
         _grid = GetComponent<Grid>();
     }
 
@@ -46,12 +60,12 @@ public class TileStatsHolder : MonoBehaviour
 
     private void ResetMaps()
     {
-        _temperatureMap.Clear();
-        _moistureMap.Clear();
-        _elevationMap.Clear();
-        _trafficMap.Clear();
-        _vegetationMap.Clear();
-        _populationMap.Clear();
+        Array.Clear(_temperatureMap, 0, _tileDimension);
+        Array.Clear(_moistureMap, 0, _tileDimension);
+        Array.Clear(_elevationMap, 0, _tileDimension);
+        Array.Clear(_trafficMap, 0, _tileDimension);
+        Array.Clear(_vegetationMap, 0, _tileDimension);
+        Array.Clear(_populationMap, 0, _tileDimension);
 
         Vector3Int coord = new Vector3Int(0, 0,0);
         for (int x = 0; x < _tileDimension; x++)
@@ -60,92 +74,113 @@ public class TileStatsHolder : MonoBehaviour
             {
                 coord.x = x;
                 coord.y = y;
-                _temperatureMap.Add(coord, _startingValue);
-                _moistureMap.Add(coord, _startingValue);
-                _elevationMap.Add(coord, _startingValue);
-                _trafficMap.Add(coord, 0); 
-                _vegetationMap.Add(coord, 0);
-                _populationMap.Add(coord, 0);
+                _temperatureMap[x,y] =  _startingValue;
+                _moistureMap[x,y] =  _startingValue;
+                _elevationMap[x,y] =  _startingValue;
 
+                _trafficMap[x,y] =  0;
+                _vegetationMap[x,y] =  0;
+                _populationMap[x,y] =  0;
             }
         }
     }
 
     #region Modify Data Maps at Coords
-    public void ModifyTemperatureAtTile(Vector3Int tileCoord, float temperatureChange)
+    public void ModifyTemperatureAtTile(int xCoord, int yCoord, float temperatureChange)
     {
-        _temperatureMap[tileCoord] += temperatureChange;
+        _temperatureMap[xCoord, yCoord] += temperatureChange;
     }
 
-    public void SetTemperatureAtTile(Vector3Int tileCoord, float temperature)
+    public void SetTemperatureAtTile(int xCoord, int yCoord, float temperature)
     {
-        _temperatureMap[tileCoord] = temperature;
+        _temperatureMap[xCoord, yCoord] = temperature;
     }
 
-    public void ModifyMoistureAtTile(Vector3Int tileCoord, float moistureChange)
+    public void ModifyMoistureAtTile(int xCoord, int yCoord, float moistureChange)
     {
-        _moistureMap[tileCoord] += moistureChange;
+        _moistureMap[xCoord, yCoord] += moistureChange;
     }
 
-    public void SetMoistureAtTile(Vector3Int tileCoord, float moisture)
+    public void SetMoistureAtTile(int xCoord, int yCoord, float moisture)
     {
-        _moistureMap[tileCoord] = moisture;
+        _moistureMap[xCoord, yCoord] = moisture;
     }
 
-    public void ModifyElevationAtTile(Vector3Int tileCoord, float elevationChange)
+    public void ModifyElevationAtTile(int xCoord, int yCoord, float elevationChange)
     {
-        _elevationMap[tileCoord] += elevationChange;
+        _elevationMap[xCoord, yCoord] += elevationChange;
     }
 
-    public void SetElevationAtTile(Vector3Int tileCoord, float elevation)
+    public void SetElevationAtTile(int xCoord, int yCoord, float elevation)
     {
-        _elevationMap[tileCoord] = elevation;
+        _elevationMap[xCoord, yCoord] = elevation;
     }
 
-    public void ModifyPopulationAtTile(Vector3Int tileCoord, float populationChange)
+    public void ModifyPopulationAtTile(int xCoord, int yCoord, float populationChange)
     {
-        _populationMap[tileCoord] += populationChange;
+        _populationMap[xCoord, yCoord] += populationChange;
     }
 
-    public void ModifyTrafficAtTile(Vector3Int tileCoord, float trafficChange)
+    public void ModifyTrafficAtTile(int xCoord, int yCoord, float trafficChange)
     {
-        _trafficMap[tileCoord] += trafficChange;
+        _trafficMap[xCoord, yCoord] += trafficChange;
     }
 
-    internal void EnforceDeepWaterWithWaterAsNeighbor(Vector3Int coords)
+    internal void EnforceDeepWaterWithWaterAsNeighbor(int xCoord, int yCoord)
     {
-        if (_elevationMap.ContainsKey(coords + _north))
+        if (xCoord+1 < _tileDimension)
         {
-            _elevationMap[coords + _north] = Mathf.Clamp(
-                _elevationMap[coords + _north],
+            _elevationMap[xCoord + 1, yCoord] = Mathf.Clamp(
+                _elevationMap[xCoord + 1, yCoord],
                 0, TileStatsRenderer.Instance.WaterThreshold);
         }
 
-        if (_elevationMap.ContainsKey(coords + _south))
+        if (xCoord - 1 >= 0)
         {
-            _elevationMap[coords + _south] = Mathf.Clamp(
-                _elevationMap[coords + _south],
+            _elevationMap[xCoord - 1, yCoord] = Mathf.Clamp(
+                _elevationMap[xCoord - 1, yCoord],
                 0, TileStatsRenderer.Instance.WaterThreshold);
         }
 
-        if (_elevationMap.ContainsKey(coords + _west))
+        if (yCoord + 1 < _tileDimension)
         {
-            _elevationMap[coords + _west] = Mathf.Clamp(
-                _elevationMap[coords + _west],
+            _elevationMap[xCoord, yCoord + 1] = Mathf.Clamp(
+                _elevationMap[xCoord, yCoord + 1],
                 0, TileStatsRenderer.Instance.WaterThreshold);
         }
 
-        if (_elevationMap.ContainsKey(coords + _east))
+        if (yCoord -1 >= 0)
         {
-            _elevationMap[coords + _east] = Mathf.Clamp(
-                _elevationMap[coords + _east],
+            _elevationMap[xCoord, yCoord - 1] = Mathf.Clamp(
+                _elevationMap[xCoord, yCoord - 1],
                 0, TileStatsRenderer.Instance.WaterThreshold);
         }
+
+        //if (_elevationMap.ContainsKey(coords + _south))
+        //{
+        //    _elevationMap[coords + _south] = Mathf.Clamp(
+        //        _elevationMap[coords + _south],
+        //        0, TileStatsRenderer.Instance.WaterThreshold);
+        //}
+
+        //if (_elevationMap.ContainsKey(coords + _west))
+        //{
+        //    _elevationMap[coords + _west] = Mathf.Clamp(
+        //        _elevationMap[coords + _west],
+        //        0, TileStatsRenderer.Instance.WaterThreshold);
+        //}
+
+        //if (_elevationMap.ContainsKey(coords + _east))
+        //{
+        //    _elevationMap[coords + _east] = Mathf.Clamp(
+        //        _elevationMap[coords + _east],
+        //        0, TileStatsRenderer.Instance.WaterThreshold);
+        //}
     }
 
-    public void ModifyVegetationAtTile(Vector3Int tileCoord, float vegetationChange)
+    public void ModifyVegetationAtTile(int xCoord, int yCoord, float vegetationChange)
     {
-        _vegetationMap[tileCoord] += vegetationChange;
+        _vegetationMap[xCoord,yCoord] += vegetationChange;
     }
 
     #endregion
@@ -161,38 +196,54 @@ public class TileStatsHolder : MonoBehaviour
         return _grid.WorldToCell(worldPos);
     }
 
-    public TileStats GetTileDataAtTileCoord(Vector3Int tileCoord)
+    public TileStats GetTileDataAtTileCoord(int xCoord, int yCoord)
     {
         TileStats td = new TileStats();
-        if (tileCoord.x >= _tileDimension
-            || tileCoord.y >= _tileDimension
-            || tileCoord.z >= _tileDimension)
+        if (xCoord >= _tileDimension
+            || yCoord >= _tileDimension)
         {
             Debug.LogWarning("Invalid tile coord");
             return td;
         }
-        td.Temperature = _temperatureMap[tileCoord];
-        td.Moisture = _moistureMap[tileCoord];
-        td.Elevation = _elevationMap[tileCoord];
-        td.Population = _populationMap[tileCoord];
-        td.Traffic = _trafficMap[tileCoord];
-        td.Vegetation = _vegetationMap[tileCoord];
+        td.Temperature = _temperatureMap[xCoord, yCoord];
+        td.Moisture = _moistureMap[xCoord, yCoord];
+        td.Elevation = _elevationMap[xCoord, yCoord];
+        td.Population = _populationMap[xCoord, yCoord];
+        td.Traffic = _trafficMap[xCoord, yCoord];
+        td.Vegetation = _vegetationMap[xCoord, yCoord];
 
         return td;
     }
 
-    public float GetElevationAtCoord(Vector3Int coord)
+    public float GetElevationAtCoord(int xCoord, int yCoord)
     {
-        if (_elevationMap.ContainsKey(coord)) return _elevationMap[coord];
+        if (xCoord >= 0 && xCoord < _tileDimension &&
+            yCoord >= 0 && yCoord < _tileDimension)
+        {
+            return _elevationMap[xCoord, yCoord];
+        }
+
         else return 0;
     }
 
-    public (float, float) GetPrimaryStatsAtCoord(Vector3Int tileCoord)
+    public (float, float) GetPrimaryStatsAtCoord(int xCoord, int yCoord)
     {
         (float, float) stats;
-        stats.Item1 = _temperatureMap[tileCoord];
-        stats.Item2 = _moistureMap[tileCoord];
+        stats.Item1 = _temperatureMap[xCoord, yCoord];
+        stats.Item2 = _moistureMap[xCoord, yCoord];
 
         return stats;
+    }
+
+    public (int,int) FindRandomWaterSpot()
+    {
+        float waterThreshold = TileStatsRenderer.Instance.WaterThreshold;
+        int row;
+        int col;
+        GridSearch.SpiralSearch_BelowMin(_elevationMap, waterThreshold,
+            out row, out col);
+
+        Debug.Log($"found a central water spot at {row},{col}");
+        return (row, col);
     }
 }

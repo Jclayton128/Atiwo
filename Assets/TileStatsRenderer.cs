@@ -87,22 +87,23 @@ public class TileStatsRenderer : MonoBehaviour
     [ContextMenu("Render All Cells")]
     private void RenderAllCells()
     {
-        Vector3Int coord = new Vector3Int(0, 0, 0);
+        
         for (int x = 0; x < TileStatsHolder.Instance.Dimension; x++)
         {
             for (int y = 0; y < TileStatsHolder.Instance.Dimension; y++)
             {
-                coord.x = x;
-                coord.y = y;
-                RenderSingleCellByCoord(coord);
+
+                RenderSingleCellByCoord(x,y);
             }
         }
     }
 
 
-    public void RenderSingleCellByCoord(Vector3Int coord)
+    public void RenderSingleCellByCoord(int xCoord, int yCoord)
     {
-        TileStats td = TileStatsHolder.Instance.GetTileDataAtTileCoord(coord);
+        TileStats td = TileStatsHolder.Instance.GetTileDataAtTileCoord(xCoord, yCoord);
+
+        Vector3Int coord = new Vector3Int(xCoord, yCoord, 0);
 
         RenderBaseTile(coord, td);
         RenderWaterTile(coord, td);
@@ -222,7 +223,7 @@ public class TileStatsRenderer : MonoBehaviour
         }
         else if (td.Elevation <= _waterThreshold)
         {
-            switch (GetBeachCategory(coord))
+            switch (GetBeachCategory(coord.x, coord.y))
             {
                 case BeachCategory.None:
                     _tilemap_water.SetTile(coord, _water);
@@ -246,12 +247,12 @@ public class TileStatsRenderer : MonoBehaviour
         }
     }
 
-    private BeachCategory GetBeachCategory(Vector3Int coord)
+    private BeachCategory GetBeachCategory(int xCoord, int yCoord)
     {
-        if ((TileStatsHolder.Instance.GetElevationAtCoord(coord + _north) <= _waterThreshold) ||
-            (TileStatsHolder.Instance.GetElevationAtCoord(coord + _east) <= _waterThreshold) ||
-            (TileStatsHolder.Instance.GetElevationAtCoord(coord + _south) <= _waterThreshold) ||
-            (TileStatsHolder.Instance.GetElevationAtCoord(coord + _west) <= _waterThreshold))
+        if ((TileStatsHolder.Instance.GetElevationAtCoord(xCoord +1, yCoord) <= _waterThreshold) ||
+            (TileStatsHolder.Instance.GetElevationAtCoord(xCoord - 1, yCoord) <= _waterThreshold) ||
+            (TileStatsHolder.Instance.GetElevationAtCoord(xCoord, yCoord + 1) <= _waterThreshold) ||
+            (TileStatsHolder.Instance.GetElevationAtCoord(xCoord, yCoord - 1) <= _waterThreshold))
         {
             return BeachCategory.None;
         }
