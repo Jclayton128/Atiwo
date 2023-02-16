@@ -1653,7 +1653,6 @@ MonoBehaviour:
   _tilemap_swamp_light: {fileID: 147417062}
   _tilemap_snow: {fileID: 411386649}
   _tilemap_snow_light: {fileID: 1411202536}
-  _tilemap_river: {fileID: 760727377}
   _tilemap_water: {fileID: 1575906247}
   _tilemap_population_light: {fileID: 407365226}
   _tilemap_population_heavy: {fileID: 1939518475}
@@ -1670,7 +1669,7 @@ MonoBehaviour:
   _snow_light: {fileID: 11400000, guid: 9e81229c8a0a3cf41a6c082c7e7f26fd, type: 2}
   _water: {fileID: 11400000, guid: ac446326b45e8954a8bbcd4ff846ef97, type: 2}
   _water_deep: {fileID: 11400000, guid: fc4667b65ef7f2c4086fc9b082d5bc90, type: 2}
-  _river_slow: {fileID: 11400000, guid: 396d07cd124817b4ea1f21c50136ee29, type: 2}
+  _stream_slow: {fileID: 11400000, guid: 396d07cd124817b4ea1f21c50136ee29, type: 2}
   _dryThreshold: 0.3
   _wetThreshold: 0.7
   _coldThreshold: 0.3
@@ -1723,7 +1722,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 384ce50b08209a44d85c33a57fee9889, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _riverVolume: 10
+  _startingVolume: 10
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

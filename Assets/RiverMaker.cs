@@ -7,14 +7,14 @@ public class RiverMaker : MonoBehaviour
 {
     [SerializeField] 
     [Tooltip("Approximately how many tiles the river will go before terminating")]
-    float _riverVolume = 10; 
+    float _startingVolume = 10; 
 
     [ContextMenu("Start River Creation")]
     public void StartRiverCreation()
     {
-        StartCoroutine(nameof(Fade));        
+        StartCoroutine(nameof(CreateRiver), _startingVolume);        
     }
-    IEnumerator Fade()
+    IEnumerator CreateRiver(float startingVolume)
     {
         // Find a low spot on the map that is water, and
         // that isn't too close to another river.
@@ -23,14 +23,14 @@ public class RiverMaker : MonoBehaviour
 
         (int, int) currentSpot = FindStartingSpot();
 
-        float remainingVolume = _riverVolume;
+        float remainingVolume = startingVolume;
         int breaker = 100;
         while (remainingVolume > 0)
         {
-            currentSpot = AdvanceRiver(currentSpot);
+            currentSpot = AdvanceRiver(currentSpot, remainingVolume);
             float moisture = TileStatsHolder.Instance.GetPrimaryStatsAtCoord(
                 currentSpot.Item1, currentSpot.Item2).Item2;
-            remainingVolume += (moisture - .8f);
+            remainingVolume += (moisture - .9f);
             breaker--;
             if (breaker <= 0)
             {
@@ -42,15 +42,30 @@ public class RiverMaker : MonoBehaviour
     }
 
 
-    private (int, int) AdvanceRiver((int, int) currentRiverLocation)
+    private (int, int) AdvanceRiver((int, int) currentRiverLocation, float volume)
     {
         (int,int) neighbor = TileStatsHolder.Instance.FindNeighborCoordWithGreatestElevationIncrease(
             currentRiverLocation.Item1, currentRiverLocation.Item2);
 
-        TileStatsHolder.Instance.ModifyRiverStatusAtTile(
+        if (volume > .8f * _startingVolume)
+        {
+            //Create fat river, and reduce elevation here to below water.
+            float waterlevel = TileStatsRenderer.Instance.WaterThreshold;
+            TileStatsHolder.Instance.SetElevationAtTile(
+                currentRiverLocation.Item1, currentRiverLocation.Item2,
+                waterlevel);
+            Vector3Int newloc = new Vector3Int(neighbor.Item1, neighbor.Item2, 0);
+            TileStatsRenderer.Instance.RenderRiverTile(newloc);
+        }
+        else
+        {
+            //create stream
+            TileStatsHolder.Instance.ModifyStreamStatusAtTile(
             neighbor.Item1, neighbor.Item2, true);
-        Vector3Int newloc = new Vector3Int(neighbor.Item1, neighbor.Item2, 0);
-        TileStatsRenderer.Instance.RenderRiverTile(newloc);
+            Vector3Int newloc = new Vector3Int(neighbor.Item1, neighbor.Item2, 0);
+            TileStatsRenderer.Instance.RenderStreamTile(newloc);
+        }
+        
         return neighbor;
     }
 

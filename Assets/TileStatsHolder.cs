@@ -39,7 +39,7 @@ public class TileStatsHolder : MonoBehaviour
     float[,] _trafficMap;
     float[,] _vegetationMap;
     float[,] _populationMap;
-    bool[,] _riverMap;
+    bool[,] _streamMap;
 
     private void Awake()
     {
@@ -50,7 +50,7 @@ public class TileStatsHolder : MonoBehaviour
         _trafficMap = new float[_tileDimension, _tileDimension];
         _vegetationMap = new float[_tileDimension, _tileDimension];
         _populationMap = new float[_tileDimension, _tileDimension];
-        _riverMap = new bool[_tileDimension, _tileDimension];
+        _streamMap = new bool[_tileDimension, _tileDimension];
 
         _grid = GetComponent<Grid>();
     }
@@ -68,7 +68,7 @@ public class TileStatsHolder : MonoBehaviour
         Array.Clear(_trafficMap, 0, _tileDimension);
         Array.Clear(_vegetationMap, 0, _tileDimension);
         Array.Clear(_populationMap, 0, _tileDimension);
-        Array.Clear(_riverMap, 0, _tileDimension);
+        Array.Clear(_streamMap, 0, _tileDimension);
 
         Vector3Int coord = new Vector3Int(0, 0,0);
         for (int x = 0; x < _tileDimension; x++)
@@ -84,7 +84,7 @@ public class TileStatsHolder : MonoBehaviour
                 _trafficMap[x,y] =  0;
                 _vegetationMap[x,y] =  0;
                 _populationMap[x,y] =  0;
-                _riverMap[x, y] = false;
+                _streamMap[x, y] = false;
             }
         }
     }
@@ -187,9 +187,9 @@ public class TileStatsHolder : MonoBehaviour
         _vegetationMap[xCoord,yCoord] += vegetationChange;
     }
 
-    public void ModifyRiverStatusAtTile(int xCoord, int yCoord, bool isRiver)
+    public void ModifyStreamStatusAtTile(int xCoord, int yCoord, bool isStream)
     {
-        _riverMap[xCoord, yCoord] = isRiver;
+        _streamMap[xCoord, yCoord] = isStream;
     }
 
     #endregion
