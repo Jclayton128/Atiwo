@@ -260,42 +260,103 @@ public class TileStatsHolder : MonoBehaviour
         return (row, col);
     }
 
-    public (int,int) FindNeighborCoordWithGreatestElevationIncrease(int xCoord, int yCoord)
-    {
-        (int, int) nay = (xCoord, yCoord); //default to north if identical
-        float delta = 0;
+    public (int,int)[] FindNeighborCoordsWithGreatestElevationIncrease(int xCoord, int yCoord)
+    {       
+        (int, int)[] neighborsBySteepness = new (int, int)[2];
+        neighborsBySteepness[0] = (xCoord, yCoord); //default to north if identical
+        neighborsBySteepness[1] = (xCoord, yCoord);
+        float delta_steepest = 0;
+        float delta_flattest = 1;
         float currentElev = _elevationMap[xCoord, yCoord];
+        float testElev = 0;
 
         //north
-        if ( yCoord + 1 < _tileDimension &&
-            _elevationMap[xCoord, yCoord + 1]  > currentElev + delta)
+        if ( yCoord + 1 < _tileDimension && !_streamMap[xCoord, yCoord + 1])
         {
-            delta = _elevationMap[xCoord, yCoord + 1] - currentElev;
-            nay = (xCoord, yCoord + 1);
-        }
-        //east
-        if (xCoord +1 < _tileDimension && 
-            _elevationMap[xCoord + 1, yCoord] > currentElev + delta)
-        {
-            delta = _elevationMap[xCoord + 1, yCoord ] - currentElev;
-            nay = (xCoord + 1, yCoord);
-        }
-        //south
-        if (yCoord - 1 >= 0 && 
-            _elevationMap[xCoord, yCoord-1] > currentElev + delta)
-        {
-            delta = _elevationMap[xCoord, yCoord - 1] - currentElev;
-            nay = (xCoord, yCoord - 1);
-        }
-        //west
-        if (xCoord -1 >= 0 && 
-            _elevationMap[xCoord - 1, yCoord] > currentElev + delta)
-        {
-            delta = _elevationMap[xCoord-1, yCoord] - currentElev;
-            nay = (xCoord - 1, yCoord);
+            testElev = _elevationMap[xCoord, yCoord + 1];
+
+            if (testElev > currentElev + delta_steepest)
+            {
+                delta_steepest = testElev - currentElev;
+                neighborsBySteepness[0] = (xCoord, yCoord + 1);
+            }
+            else if (testElev > currentElev && testElev < currentElev + delta_flattest)
+            {
+                delta_flattest = testElev - currentElev;
+                neighborsBySteepness[1] = (xCoord, yCoord + 1);
+            }
         }
 
-        return nay;
+        //east
+        if (xCoord + 1 < _tileDimension && !_streamMap[xCoord + 1, yCoord])
+        {
+            testElev = _elevationMap[xCoord + 1, yCoord];
+            if (testElev > currentElev + delta_steepest)
+            {
+                delta_steepest = testElev - currentElev;
+                neighborsBySteepness[0] = (xCoord + 1, yCoord);
+            }
+            else if (testElev > currentElev && testElev < currentElev + delta_flattest)
+            {
+                delta_flattest = testElev - currentElev;
+                neighborsBySteepness[1] = (xCoord + 1, yCoord);
+            }
+        }
+
+        //south
+
+        if (yCoord - 1 > 0 && !_streamMap[xCoord, yCoord - 1])
+        {
+            testElev = _elevationMap[xCoord, yCoord - 1];
+
+            if (testElev > currentElev + delta_steepest)
+            {
+                delta_steepest = testElev - currentElev;
+                neighborsBySteepness[0] = (xCoord, yCoord - 1);
+            }
+            else if (testElev > currentElev && testElev < currentElev + delta_flattest)
+            {
+                delta_flattest = testElev - currentElev;
+                neighborsBySteepness[1] = (xCoord, yCoord - 1);
+            }
+        }
+
+        //west
+        if (xCoord - 1 > 0 && !_streamMap[xCoord - 1, yCoord])
+        {
+            testElev = _elevationMap[xCoord-1, yCoord];
+
+            if (testElev > currentElev + delta_steepest)
+            {
+                delta_steepest = testElev - currentElev;
+                neighborsBySteepness[0] = (xCoord - 1, yCoord);
+            }
+            else if (testElev > currentElev && testElev < currentElev + delta_flattest)
+            {
+                delta_flattest = testElev - currentElev;
+                neighborsBySteepness[1] = (xCoord - 1, yCoord);
+            }
+        }
+
+        //if (xCoord -1 >= 0 && 
+        //    _elevationMap[xCoord - 1, yCoord] > currentElev + delta_steepest)
+        //{
+        //    delta_steepest = _elevationMap[xCoord-1, yCoord] - currentElev;
+        //    nay = (xCoord - 1, yCoord);
+        //}
+
+        //north a second time for flattest check.
+        if (yCoord + 1 < _tileDimension && !_streamMap[xCoord, yCoord + 1])
+        {
+            testElev = _elevationMap[xCoord, yCoord + 1];
+            if (testElev > currentElev && testElev < currentElev + delta_flattest)
+            {
+                delta_flattest = testElev - currentElev;
+                neighborsBySteepness[1] = (xCoord, yCoord + 1);
+            }
+        }
+
+        return neighborsBySteepness;
 
     }
 }
