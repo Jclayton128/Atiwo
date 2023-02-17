@@ -106,7 +106,10 @@ public class TileStatsRenderer : MonoBehaviour
         Vector3Int coord = new Vector3Int(xCoord, yCoord, 0);
 
         RenderBaseTile(coord, td);
-        RenderWaterTile(coord, td);
+
+        //Water is controlled by TileWaterMaker
+        //RenderWaterTile(coord, td); 
+        
         RenderPopulationTile(coord, td);
         RenderTrafficTile(coord, td);
         RenderVegetationTile(coord, td);
@@ -212,37 +215,53 @@ public class TileStatsRenderer : MonoBehaviour
 
     }
 
-    private void RenderWaterTile(Vector3Int coord, TileStats td)
+    public void RenderLakeTile(Vector3Int coord)
     {
-        if (td.Elevation <= _deepwaterThreshold)
+        float volume = TileStatsHolder.Instance.
+            GetWaterVolumeAtCoord(coord.x, coord.y);
+        if (volume > 0)
         {
-            _tilemap_water.SetTile(coord, _water_deep);
-            //return;
+            _tilemap_water.SetTile(coord, _water);
+            //if (volume > _deepwaterThreshold)
+            //{
+            //    _tilemap_water.SetTile(coord, _water_deep);
+            //}
+            //else
+            //{
+            //    _tilemap_water.SetTile(coord, _water);
+            //}
         }
-        else if (td.Elevation <= _waterThreshold)
-        {
-            switch (GetBeachCategory(coord.x, coord.y))
-            {
-                case BeachCategory.None:
-                    _tilemap_water.SetTile(coord, _water);
-                    break;
-
-                case BeachCategory.Brown:
-                    _tilemap_water.SetTile(coord, _water);
-                    break;
-
-                case BeachCategory.Sand:
-                    _tilemap_water.SetTile(coord, _water);
-                    break;
-            }
 
 
-            //return;
-        }
-        else
-        {
-            _tilemap_water.SetTile(coord, null);
-        }
+        //if (td.Elevation <= _deepwaterThreshold)
+        //{
+        //    _tilemap_water.SetTile(coord, _water_deep);
+        //    //return;
+        //}
+        //else if (td.Elevation <= _waterThreshold)
+        //{
+        //    switch (GetBeachCategory(coord.x, coord.y))
+        //    {
+        //        case BeachCategory.None:
+        //            _tilemap_water.SetTile(coord, _water);
+        //            break;
+
+        //        case BeachCategory.Brown:
+        //            _tilemap_water.SetTile(coord, _water);
+        //            break;
+
+        //        case BeachCategory.Sand:
+        //            _tilemap_water.SetTile(coord, _water);
+        //            break;
+        //    }
+
+
+        //    //return;
+        //}
+        //else
+        //{
+        //    _tilemap_water.SetTile(coord, null);
+        //}
     }
 
     private BeachCategory GetBeachCategory(int xCoord, int yCoord)

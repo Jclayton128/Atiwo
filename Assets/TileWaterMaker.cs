@@ -5,8 +5,13 @@ using UnityEngine;
 
 public class TileWaterMaker : MonoBehaviour
 {
+    private Action AllSpringsHaveCompleted;
+
     List<WaterGrid> _waterGrids;
     List<WaterSpring> _springs;
+    List<Lake> _lakes = new List<Lake>();
+
+    System.Random rnd;
 
     //settings
     [SerializeField] int _waterGridSize = 5;
@@ -17,6 +22,15 @@ public class TileWaterMaker : MonoBehaviour
         float _soilSoakupFactor = 0.6f;
 
     int _maxRiverLength = 100;
+
+    //state
+    WaitForSeconds delay = new WaitForSeconds(.125f);
+
+    private void Start()
+    {
+        rnd = new System.Random(RandomController.Instance.CurrentSeed);
+        AllSpringsHaveCompleted += FlowEachLake;
+    }
 
 
     [ContextMenu("Create Water")]
@@ -30,11 +44,13 @@ public class TileWaterMaker : MonoBehaviour
         // foreach spring, route it until it reaches a local minimum.
         FlowEachSpring();
         // Check for a Lake at the local minimum.
-            // If there isn't a Lake there, make one.
-            //If there is a Lake there, then add remaining volume to it.
+        // If there isn't a Lake there, make one.
+        //If there is a Lake there, then add remaining volume to it.
         // foreach Lake, grow it tile-by-tile until its volume is used up.
+        //FlowEachLake();
     }
 
+    #region Create Water Flow
     private List<WaterGrid> CreateWaterGrids()
     {
         List<WaterGrid> wglist = new List<WaterGrid>();
@@ -69,7 +85,7 @@ public class TileWaterMaker : MonoBehaviour
                 }
 
                 highPoint = TileStatsHolder.Instance.FindHighestCellWithinWaterGrid(origin, farCorner);
-                waterVolume = TileStatsHolder.Instance.FindWaterVolumeWithinWaterGrid(origin, farCorner);
+                waterVolume = TileStatsHolder.Instance.FindTotalMoistureWithinWaterGrid(origin, farCorner);
                 WaterGrid wg = new WaterGrid(origin, farCorner, highPoint, waterVolume);
                 wglist.Add(wg);
             }
@@ -117,17 +133,20 @@ public class TileWaterMaker : MonoBehaviour
             if (previousCoord == coord)
             {
                 Debug.Log("Local Minimum Found");
+                HandleLocalMinimumFound(coord, volume);
+                CompleteStreamFlow(spring);
                 break;
             }
 
-            //if (!hasMetNeighbor) PlaceStreamTile(coord);
+            if (!hasMetNeighbor) PlaceStreamTile(coord);
 
-            //if (!TileStatsHolder.Instance.CheckStreamStatus(coord))
+            //if (TileStatsHolder.Instance.
+            //    CheckStreamStatus(coord, previousCoord))
             //{
             //    hasMetNeighbor = true;
             //}
 
-            PlaceStreamTile(coord);
+            //PlaceStreamTile(coord);
 
             float moisture = TileStatsHolder.Instance.GetPrimaryStatsAtCoord(
                 coord.x, coord.y).Item2;
@@ -135,28 +154,181 @@ public class TileWaterMaker : MonoBehaviour
 
             if (volume <= 0)
             {
+                CompleteStreamFlow(spring);
                 Debug.Log("River ran dry");
+                break;
             }
 
             breaker--;
             if (breaker <= 0)
             {
-                Debug.LogWarning("Breaker engaged!");
+                CompleteStreamFlow(spring);
+                Debug.LogWarning("Max River Length Reached");
                 break;
             }
-            yield return new WaitForSeconds(.5f);
+            yield return delay;
         }
+    }
+
+    private void CompleteStreamFlow(WaterSpring spring)
+    {
+        spring.HasCompletedFlow = true;
+
+        bool allSpringsAreCompleted = true;
+        foreach (var spg in _springs)
+        {
+            if (spg.HasCompletedFlow == false)
+            {
+                allSpringsAreCompleted = false;
+                break;
+            }
+        }
+
+        if (allSpringsAreCompleted)
+        {
+            AllSpringsHaveCompleted?.Invoke();
+        }
+    }
+
+    private void FlowEachLake()
+    {
+        foreach (var lake in _lakes)
+        {
+            StartCoroutine(nameof(FlowLake), lake);
+        }
+    }
+
+    IEnumerator FlowLake(Lake lake)
+    {
+        Dictionary<Vector2Int, float> naysByElevation = new Dictionary<Vector2Int, float>();
+
+        int breaker = _maxRiverLength;
+        Vector2Int currentCoord = lake.StartCoord;
+        PlaceLakeTile(currentCoord, 1f);
+        AddNewCoordsNeighborsByElevation(naysByElevation, currentCoord);
+
+        while (lake.Volume > 0)
+        {
+            currentCoord = SelectLowestNeighborCoord(naysByElevation);
+            naysByElevation.Remove(currentCoord);
+            AddNewCoordsNeighborsByElevation(naysByElevation, currentCoord);
+
+            //turn current coord into lake;
+            float volumeToDevoteHere = 10f;
+            PlaceLakeTile(currentCoord, volumeToDevoteHere);
+
+            //reduce remaining volume;
+            lake.Volume -= volumeToDevoteHere;
+            Debug.Log($"{lake.LakeName} has {lake.Volume} remaining, and" +
+                $"has {naysByElevation.Count} neighbors to check.");
+            if (lake.Volume <= 0)
+            {
+                Debug.Log($"{lake.LakeName} is out of volume");
+                break;
+            }
+
+            breaker--;
+            if (breaker <= 0)
+            {
+                Debug.Log("Max Lake Size Reached");
+                break;
+            }
+
+            yield return delay;
+        }
+    }
+
+    private Vector2Int SelectLowestNeighborCoord(Dictionary<Vector2Int, float> naysByElevation)
+    {
+        float lowToBeat = float.MaxValue;
+        Vector2Int currentLowest = Vector2Int.zero;
+
+        foreach (var key in naysByElevation.Keys)
+        {
+
+            if (naysByElevation[key] >= 0 && 
+                naysByElevation[key] < lowToBeat)
+            {
+                lowToBeat = naysByElevation[key];
+                currentLowest = key;
+            }
+        }
+        return currentLowest;
+    }
+
+    private static void AddNewCoordsNeighborsByElevation(Dictionary<Vector2Int, float> naysByElevation, Vector2Int currentCoord)
+    {
+        (Vector2Int, float)[] nb = TileStatsHolder.Instance.
+            GetNeighborCellsWithElevationAndZeroWater(currentCoord);
+        for (int i = 0; i < nb.Length; i++)
+        {
+            if (naysByElevation.ContainsKey(nb[i].Item1)) continue;
+            naysByElevation.Add(nb[i].Item1, nb[i].Item2);
+        }
+    }
+    #endregion
+
+    #region Helpers
+    private void HandleLocalMinimumFound(Vector2Int coord, float volume)
+    {
+        Lake possibleLake;
+        if (!CheckForExistingLake(coord, out possibleLake))
+        {
+            CreateNewLake(coord, volume);
+        }
+        else
+        {
+            AddToCurrentLake(possibleLake, volume);
+        }
+    }
+
+    private bool CheckForExistingLake(Vector2Int coord, out Lake possibleLake)
+    {
+        foreach (var lake in _lakes)
+        {
+            if (lake.StartCoord == coord)
+            {
+                possibleLake = lake;
+                return true;
+            }
+        }
+
+        possibleLake = null;
+        return false;
+    }
+
+    private void CreateNewLake(Vector2Int coord, float volume)
+    {
+        string newName = $"Lake #{rnd.Next(100)}";
+        Lake newLake = new Lake(coord, volume, newName);
+        _lakes.Add(newLake);
+        PlaceLakeTile(coord, volume);
+        //Debug.Log($"{newName} created with {volume} water");
+    }
+
+    private void AddToCurrentLake(Lake possibleLake, float volume)
+    {
+        possibleLake.Volume += volume;
+        //Debug.Log($"{possibleLake.LakeName} increased to {possibleLake.Volume} water");
     }
 
     private void PlaceStreamTile(Vector2Int coord)
     {
-        TileStatsHolder.Instance.ModifyStreamStatusAtTile(
-            coord.x, coord.y, true);
+        TileStatsHolder.Instance.ModifyWaterStatusAtTile(
+            coord.x, coord.y, 0.01f, true);
 
         Vector3Int newloc = (Vector3Int)coord;
         TileStatsRenderer.Instance.RenderStreamTile(newloc);
     }
 
+    private void PlaceLakeTile(Vector2Int coord, float volume)
+    {
+        TileStatsHolder.Instance.ModifyWaterStatusAtTile(
+            coord.x, coord.y, volume, true);
+        TileStatsRenderer.Instance.RenderLakeTile((Vector3Int)coord);
+    }
+
+    #endregion
 
 }
 
@@ -182,12 +354,32 @@ public class WaterSpring
 {
     public Vector2Int StartCoord;
     public float StartVolume;
+    public bool HasCompletedFlow;
 
     public WaterSpring(Vector2Int startCoord,float startVolume)
     {
         this.StartCoord = startCoord;
         this.StartVolume = startVolume;
+        HasCompletedFlow = false;
     }
+
+
+}
+
+public class Lake 
+{
+    public Vector2Int StartCoord;
+    public float Volume;
+    public string LakeName;
+
+    public Lake(Vector2Int startCoord, float volume, string lakeName)
+    {
+        this.StartCoord = startCoord;
+        this.Volume = volume;
+        this.LakeName = lakeName;
+    }
+
+
 }
 
 

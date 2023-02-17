@@ -107,8 +107,8 @@ public class RiverMaker : MonoBehaviour
         else
         {
             //create stream
-            TileStatsHolder.Instance.ModifyStreamStatusAtTile(
-            neighbors[0].x, neighbors[0].y, true);
+            TileStatsHolder.Instance.ModifyWaterStatusAtTile(
+            neighbors[0].x, neighbors[0].y, .1f, true);
 
             Vector3Int newloc = new Vector3Int(neighbors[0].x, neighbors[0].y, 0);
             TileStatsRenderer.Instance.RenderStreamTile(newloc);
@@ -137,8 +137,8 @@ public class RiverMaker : MonoBehaviour
             forkStart.x, forkStart.y);
 
         //create stream following flattest route
-        TileStatsHolder.Instance.ModifyStreamStatusAtTile(
-        neighbors[1].x, neighbors[1].y, true);
+        TileStatsHolder.Instance.ModifyWaterStatusAtTile(
+        neighbors[1].x, neighbors[1].y, .1f, true);
 
         Vector3Int newloc = new Vector3Int(neighbors[1].x, neighbors[1].y, 0);
         TileStatsRenderer.Instance.RenderStreamTile(newloc);
@@ -188,8 +188,8 @@ public class RiverMaker : MonoBehaviour
             //iteratively build the river
             currentSpot = ChooseNextStreamSpot(currentSpot, immediateDirection, ref historicalDirection);
 
-            TileStatsHolder.Instance.ModifyStreamStatusAtTile(
-                currentSpot.x, currentSpot.y, true);
+            TileStatsHolder.Instance.ModifyWaterStatusAtTile(
+                currentSpot.x, currentSpot.y, .1f, true);
             Vector3Int newloc = (Vector3Int)currentSpot;
             TileStatsRenderer.Instance.RenderStreamTile(newloc);
 

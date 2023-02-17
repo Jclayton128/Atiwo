@@ -4,6 +4,12 @@ using UnityEngine;
 
 public static class GridSearch
 {
+    static Vector2Int _north = new Vector2Int(0, 1);
+    static Vector2Int _south = new Vector2Int(0, -1);
+    static Vector2Int _east = new Vector2Int(1, 0);
+    static Vector2Int _west = new Vector2Int(-1, 0);
+
+
     /// <summary>
     /// Attempts to provide a coordinate for a cell that is under the target
     /// value, with a low-side tolerance. 
@@ -118,6 +124,51 @@ public static class GridSearch
         return subArray;
     }
 
+
+    /// <summary>
+    /// Takes in an array and returns the coordinates for the source coord's
+    /// 4 orthogonal neighbors, arranged North, East, South, West.
+    /// Neighbor coordinates that are outside of the bounds of the array
+    /// will return as -1,-1.
+    /// </summary>
+
+    public static Vector2Int[] GetNeighboringCellCoordinates(float[,] array, Vector2Int startCoord)
+    {
+        if (array.GetLength(0) != array.GetLength(1))
+        {
+            Debug.LogWarning("Array must be square.");
+            return null;
+        }
+
+        //N,E,S,W
+        Vector2Int[] neighborCoords = new Vector2Int[4]
+        {
+            new Vector2Int(-1,-1),
+            new Vector2Int(-1,-1),
+            new Vector2Int(-1,-1),
+            new Vector2Int(-1,-1),
+        };
+
+        if (startCoord.y +1 < array.GetLength(0))
+        {
+            neighborCoords[0] = startCoord + _north;
+        }
+
+        if (startCoord.x + 1 < array.GetLength(0))
+        {
+            neighborCoords[1] = startCoord + _east;
+        }
+        if (startCoord.y - 1 < array.GetLength(0))
+        {
+            neighborCoords[2] = startCoord + _south;
+        }
+        if (startCoord.x - 1 < array.GetLength(0))
+        {
+            neighborCoords[3] = startCoord + _west;
+        }
+
+        return neighborCoords;
+    }
 }
 
 

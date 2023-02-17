@@ -40,7 +40,7 @@ public class TileStatsHolder : MonoBehaviour
     float[,] _trafficMap;
     float[,] _vegetationMap;
     float[,] _populationMap;
-    bool[,] _streamMap;
+    float[,] _waterMap;
 
     private void Awake()
     {
@@ -51,7 +51,7 @@ public class TileStatsHolder : MonoBehaviour
         _trafficMap = new float[_tileDimension, _tileDimension];
         _vegetationMap = new float[_tileDimension, _tileDimension];
         _populationMap = new float[_tileDimension, _tileDimension];
-        _streamMap = new bool[_tileDimension, _tileDimension];
+        _waterMap = new float[_tileDimension, _tileDimension];
 
         _grid = GetComponent<Grid>();
     }
@@ -69,23 +69,23 @@ public class TileStatsHolder : MonoBehaviour
         Array.Clear(_trafficMap, 0, _tileDimension);
         Array.Clear(_vegetationMap, 0, _tileDimension);
         Array.Clear(_populationMap, 0, _tileDimension);
-        Array.Clear(_streamMap, 0, _tileDimension);
+        Array.Clear(_waterMap, 0, _tileDimension);
 
-        Vector3Int coord = new Vector3Int(0, 0,0);
+        Vector3Int coord = new Vector3Int(0, 0, 0);
         for (int x = 0; x < _tileDimension; x++)
         {
             for (int y = 0; y < _tileDimension; y++)
             {
                 coord.x = x;
                 coord.y = y;
-                _temperatureMap[x,y] =  _startingValue;
-                _moistureMap[x,y] =  _startingValue;
-                _elevationMap[x,y] =  _startingValue;
+                _temperatureMap[x, y] = _startingValue;
+                _moistureMap[x, y] = _startingValue;
+                _elevationMap[x, y] = _startingValue;
 
-                _trafficMap[x,y] =  0;
-                _vegetationMap[x,y] =  0;
-                _populationMap[x,y] =  0;
-                _streamMap[x, y] = false;
+                _trafficMap[x, y] = 0;
+                _vegetationMap[x, y] = 0;
+                _populationMap[x, y] = 0;
+                _waterMap[x, y] = 0;
             }
         }
     }
@@ -112,15 +112,12 @@ public class TileStatsHolder : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns TRUE if the coordinate already has a stream.
+    /// Returns TRUE if the test coordinate or its neighbors already
+    /// have a stream. Previous coordinate of stream is supplied to
+    /// prevent this check from returning false from the last iteration.
     /// </summary>
-    /// <param name="coord"></param>
-    /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
-    internal bool CheckStreamStatus(Vector2Int coord)
-    {
-        return _streamMap[coord.x, coord.y];
-    }
+
+
 
     public void ModifyElevationAtTile(int xCoord, int yCoord, float elevationChange)
     {
@@ -144,7 +141,7 @@ public class TileStatsHolder : MonoBehaviour
 
     internal void EnforceDeepWaterWithWaterAsNeighbor(int xCoord, int yCoord)
     {
-        if (xCoord+1 < _tileDimension)
+        if (xCoord + 1 < _tileDimension)
         {
             _elevationMap[xCoord + 1, yCoord] = Mathf.Clamp(
                 _elevationMap[xCoord + 1, yCoord],
@@ -165,7 +162,7 @@ public class TileStatsHolder : MonoBehaviour
                 0, TileStatsRenderer.Instance.WaterThreshold);
         }
 
-        if (yCoord -1 >= 0)
+        if (yCoord - 1 >= 0)
         {
             _elevationMap[xCoord, yCoord - 1] = Mathf.Clamp(
                 _elevationMap[xCoord, yCoord - 1],
@@ -196,14 +193,37 @@ public class TileStatsHolder : MonoBehaviour
 
     public void ModifyVegetationAtTile(int xCoord, int yCoord, float vegetationChange)
     {
-        _vegetationMap[xCoord,yCoord] += vegetationChange;
+        _vegetationMap[xCoord, yCoord] += vegetationChange;
     }
 
-    public void ModifyStreamStatusAtTile(int xCoord, int yCoord, bool isStream)
+    internal bool CheckWaterStatus(Vector2Int testCoord, Vector2Int coordToIgnore)
     {
-        _streamMap[xCoord, yCoord] = isStream;
+        if (_waterMap[testCoord.x, testCoord.y] > 0) return true;
 
-        if (isStream)
+        if (testCoord.y + 1 < _tileDimension &&
+            testCoord.y + 1 != coordToIgnore.y &&
+            _waterMap[testCoord.x, testCoord.y + 1] > 0) return true;
+
+        if (testCoord.x + 1 < _tileDimension &&
+            testCoord.x + 1 != coordToIgnore.x &&
+            _waterMap[testCoord.x + 1, testCoord.y] > 0) return true;
+
+        if (testCoord.y - 1 > 0 &&
+            testCoord.y - 1 != coordToIgnore.y &&
+            _waterMap[testCoord.x, testCoord.y - 1] > 0) return true;
+
+        if (testCoord.x - 1 > 0 &&
+            testCoord.x - 1 != coordToIgnore.x &&
+            _waterMap[testCoord.x - 1, testCoord.y] > 0) return true;
+
+        return false;
+    }
+
+    public void ModifyWaterStatusAtTile(int xCoord, int yCoord, float waterVolume, bool isStream)
+    {
+        _waterMap[xCoord, yCoord] = waterVolume;
+
+        if (waterVolume > 0 && isStream)
         {
             //Reduce the new stream's elevation to encourage cleaner
             //joinings with other nearby streams
@@ -212,12 +232,14 @@ public class TileStatsHolder : MonoBehaviour
                 FindNeighborCoordsWithGreatestElevationDecrease(
                 xCoord, yCoord);
             float lowElev = _elevationMap[lowCoords.x, lowCoords.y];
-            float splitElev = (currentElev + lowElev + lowElev) / 3f;
+            float splitElev = (currentElev + currentElev + lowElev) / 3f;
             _elevationMap[xCoord, yCoord] = splitElev;
         }
     }
 
     #endregion
+
+    #region Gets
 
     public Vector3Int GetTileCoord(Vector3 worldPos)
     {
@@ -269,6 +291,40 @@ public class TileStatsHolder : MonoBehaviour
         return stats;
     }
 
+    public float GetWaterVolumeAtCoord(int xCoord, int yCoord)
+    {
+        return _waterMap[xCoord, yCoord];
+    }
+
+    public (Vector2Int, float)[] GetNeighborCellsWithElevationAndZeroWater(Vector2Int sourceCoord)
+    {
+        int orthoCount = 4;
+        (Vector2Int, float)[] nce = new (Vector2Int, float)[orthoCount];
+        Vector2Int[] nays = GridSearch.GetNeighboringCellCoordinates(
+            _elevationMap, sourceCoord);
+
+        for (int i = 0; i < orthoCount; i++)
+        {
+            Vector2Int coord = nays[i];
+            nce[i].Item1 = coord;
+            if (coord.x <0 || coord.y < 0 ||
+                _waterMap[coord.x, coord.y] > 0)
+            {
+                nce[i].Item2 = -1;
+
+            }
+            else
+            {
+                nce[i].Item2 = _elevationMap[coord.x, coord.y];
+
+            }
+        }
+        return nce;
+    }
+
+    #endregion
+
+    #region Finds
     public Vector2Int FindRandomBeachCoord()
     {
         float targetValue = TileStatsRenderer.Instance.WaterThreshold;
@@ -303,7 +359,7 @@ public class TileStatsHolder : MonoBehaviour
         float testElev = 0;
 
         //north
-        if ( yCoord + 1 < _tileDimension && !_streamMap[xCoord, yCoord + 1])
+        if ( yCoord + 1 < _tileDimension && _waterMap[xCoord, yCoord + 1] <= 0)
         {
             testElev = _elevationMap[xCoord, yCoord + 1];
 
@@ -320,7 +376,7 @@ public class TileStatsHolder : MonoBehaviour
         }
 
         //east
-        if (xCoord + 1 < _tileDimension && !_streamMap[xCoord + 1, yCoord])
+        if (xCoord + 1 < _tileDimension && _waterMap[xCoord + 1, yCoord] <= 0)
         {
             testElev = _elevationMap[xCoord + 1, yCoord];
             if (testElev > currentElev + delta_steepest)
@@ -337,7 +393,7 @@ public class TileStatsHolder : MonoBehaviour
 
         //south
 
-        if (yCoord - 1 > 0 && !_streamMap[xCoord, yCoord - 1])
+        if (yCoord - 1 > 0 && _waterMap[xCoord, yCoord - 1] <= 0)
         {
             testElev = _elevationMap[xCoord, yCoord - 1];
 
@@ -354,7 +410,7 @@ public class TileStatsHolder : MonoBehaviour
         }
 
         //west
-        if (xCoord - 1 > 0 && !_streamMap[xCoord - 1, yCoord])
+        if (xCoord - 1 > 0 && _waterMap[xCoord - 1, yCoord] <= 0)
         {
             testElev = _elevationMap[xCoord-1, yCoord];
 
@@ -378,7 +434,7 @@ public class TileStatsHolder : MonoBehaviour
         //}
 
         //north a second time for flattest check.
-        if (yCoord + 1 < _tileDimension && !_streamMap[xCoord, yCoord + 1])
+        if (yCoord + 1 < _tileDimension && _waterMap[xCoord, yCoord + 1] <= 0)
         {
             testElev = _elevationMap[xCoord, yCoord + 1];
             if (testElev > currentElev && testElev < currentElev + delta_flattest)
@@ -455,7 +511,7 @@ public class TileStatsHolder : MonoBehaviour
     }
 
 
-    internal float FindWaterVolumeWithinWaterGrid(Vector2Int origin, Vector2Int farCorner)
+    internal float FindTotalMoistureWithinWaterGrid(Vector2Int origin, Vector2Int farCorner)
     {
         int xWidth = farCorner.x - origin.x;
         int yHeight = farCorner.y - origin.y;
@@ -464,5 +520,5 @@ public class TileStatsHolder : MonoBehaviour
         return GridSearch.FindSumValueWithinGrid(arr);
     }
 
-
+    #endregion
 }

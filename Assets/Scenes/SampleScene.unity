@@ -1676,8 +1676,8 @@ MonoBehaviour:
   _coldThreshold: 0.3
   _hotThreshold: 0.7
   _thresholdTolerance: 0.1
-  _deepwaterThreshold: 0.05
-  _waterThreshold: 0.1
+  _deepwaterThreshold: 0.2
+  _waterThreshold: 0.3
   _pavers_middle: {fileID: 11400000, guid: b6b588cefc9b1fc419f510d78319a84d, type: 2}
   _pavers_dense: {fileID: 11400000, guid: e6222ce45e040f246a75891bf311ba85, type: 2}
   _sparseThreshold: 0.3
@@ -1695,7 +1695,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08cc98d4f49b07d48bceaa2f9a8890de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tileDimension: 50
+  _tileDimension: 100
   _startingValue: 0.5
 --- !u!114 &517811939
 MonoBehaviour:
@@ -1738,8 +1738,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09fff22ae0c50744c9a96ef044f48f4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _waterGridSize: 11
-  _soilSoakupFactor: 0.9
+  _waterGridSize: 25
+  _soilSoakupFactor: 2
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
