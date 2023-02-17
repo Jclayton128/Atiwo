@@ -230,9 +230,9 @@ public class TileStatsHolder : MonoBehaviour
             float currentElev = _elevationMap[xCoord, yCoord];
             Vector2Int lowCoords =
                 FindNeighborCoordsWithGreatestElevationDecrease(
-                xCoord, yCoord);
+                xCoord, yCoord,0);
             float lowElev = _elevationMap[lowCoords.x, lowCoords.y];
-            float splitElev = (currentElev + currentElev + lowElev) / 3f;
+            float splitElev = (currentElev + currentElev + currentElev + lowElev) / 4f;
             _elevationMap[xCoord, yCoord] = splitElev;
         }
     }
@@ -448,8 +448,15 @@ public class TileStatsHolder : MonoBehaviour
 
     }
 
-    public Vector2Int FindNeighborCoordsWithGreatestElevationDecrease(int xCoord, int yCoord)
+    /// <summary>
+    /// Returns the Coordinates of the neighbor with the steepest descent from the 
+    /// source coordinate. If no neighbors are found, the search will be run with the
+    /// uphill tolerance applied to 'creep' over small local minima.
+    /// </summary>
+
+    public Vector2Int FindNeighborCoordsWithGreatestElevationDecrease(int xCoord, int yCoord, float uphillTolerance)
     {
+        bool foundNeighbor = false;
         Vector2Int lowestNeighbor = new Vector2Int(xCoord,yCoord);
         float currentElev = _elevationMap[xCoord, yCoord];
         float elevationToBeat = currentElev;
@@ -461,6 +468,7 @@ public class TileStatsHolder : MonoBehaviour
             {
                 elevationToBeat = _elevationMap[xCoord, yCoord + 1];
                 lowestNeighbor = new Vector2Int(xCoord, yCoord) + _north;
+                foundNeighbor = true;
             }
         }
 
@@ -471,6 +479,7 @@ public class TileStatsHolder : MonoBehaviour
             {
                 elevationToBeat = _elevationMap[xCoord + 1, yCoord];
                 lowestNeighbor = new Vector2Int(xCoord, yCoord) + _east;
+                foundNeighbor = true;
             }
         }
 
@@ -481,6 +490,7 @@ public class TileStatsHolder : MonoBehaviour
             {
                 elevationToBeat = _elevationMap[xCoord, yCoord - 1];
                 lowestNeighbor = new Vector2Int(xCoord, yCoord) + _south;
+                foundNeighbor = true;
             }
         }
 
@@ -491,6 +501,51 @@ public class TileStatsHolder : MonoBehaviour
             {
                 elevationToBeat = _elevationMap[xCoord - 1, yCoord];
                 lowestNeighbor = new Vector2Int(xCoord, yCoord) + _west;
+                foundNeighbor = true;
+            }
+        }
+
+        if (!foundNeighbor && uphillTolerance > 0)
+        {
+            elevationToBeat += uphillTolerance;
+            //north
+            if (yCoord + 1 < _tileDimension)
+            {
+                if (_elevationMap[xCoord, yCoord + 1] < elevationToBeat)
+                {
+                    elevationToBeat = _elevationMap[xCoord, yCoord + 1];
+                    lowestNeighbor = new Vector2Int(xCoord, yCoord) + _north;
+                }
+            }
+
+            //east
+            if (xCoord + 1 < _tileDimension)
+            {
+                if (_elevationMap[xCoord + 1, yCoord] < elevationToBeat)
+                {
+                    elevationToBeat = _elevationMap[xCoord + 1, yCoord];
+                    lowestNeighbor = new Vector2Int(xCoord, yCoord) + _east;
+                }
+            }
+
+            //south
+            if (yCoord - 1 > 0)
+            {
+                if (_elevationMap[xCoord, yCoord - 1] < elevationToBeat)
+                {
+                    elevationToBeat = _elevationMap[xCoord, yCoord - 1];
+                    lowestNeighbor = new Vector2Int(xCoord, yCoord) + _south;
+                }
+            }
+
+            //west
+            if (xCoord - 1 > 0)
+            {
+                if (_elevationMap[xCoord - 1, yCoord] < elevationToBeat)
+                {
+                    elevationToBeat = _elevationMap[xCoord - 1, yCoord];
+                    lowestNeighbor = new Vector2Int(xCoord, yCoord) + _west;
+                }
             }
         }
 

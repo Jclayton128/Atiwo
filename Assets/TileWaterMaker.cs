@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class TileWaterMaker : MonoBehaviour
 {
+    public static TileWaterMaker Instance;
     private Action AllSpringsHaveCompleted;
 
     List<WaterGrid> _waterGrids;
@@ -22,20 +23,33 @@ public class TileWaterMaker : MonoBehaviour
         float _soilSoakupFactor = 0.6f;
 
     int _maxRiverLength = 100;
+    int _maxLakeSize = 300;
+    [SerializeField] float _uphillTolerance = 0.1f;
 
     //state
-    WaitForSeconds delay = new WaitForSeconds(.125f);
+    WaitForSeconds delay = new WaitForSeconds(.0625f);
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
         rnd = new System.Random(RandomController.Instance.CurrentSeed);
-        AllSpringsHaveCompleted += FlowEachLake;
+        AllSpringsHaveCompleted += HandleSpringsCompleted;
     }
 
+    private void HandleSpringsCompleted()
+    {
+        TileStatsRandomizer.Instance.InjectElevationNoise();
+        FlowEachLake();
+    }
 
     [ContextMenu("Create Water")]
     public void CreateWater()
     {
+        _lakes.Clear();
         // Gridify entire tilemap
         _waterGrids = CreateWaterGrids();
         // Place one spring in the highest point within each subgrid
@@ -123,13 +137,13 @@ public class TileWaterMaker : MonoBehaviour
         PlaceStreamTile(coord);
 
         int breaker = _maxRiverLength;
-        while (volume > 0)
+        while ( true) //volume > 0)
         {
             previousCoord = coord;
             coord = 
                 TileStatsHolder.Instance.
                 FindNeighborCoordsWithGreatestElevationDecrease(
-                    coord.x, coord.y);
+                    coord.x, coord.y, _uphillTolerance);
             if (previousCoord == coord)
             {
                 Debug.Log("Local Minimum Found");
@@ -148,22 +162,25 @@ public class TileWaterMaker : MonoBehaviour
 
             //PlaceStreamTile(coord);
 
+
             float moisture = TileStatsHolder.Instance.GetPrimaryStatsAtCoord(
                 coord.x, coord.y).Item2;
             volume += (moisture - _soilSoakupFactor);
 
-            if (volume <= 0)
-            {
-                CompleteStreamFlow(spring);
-                Debug.Log("River ran dry");
-                break;
-            }
+            /// Disabling the feature where rivers can run dry before reaching
+            /// a local minimum.
+            //if (volume <= 0)
+            //{
+            //    CompleteStreamFlow(spring);
+            //    Debug.Log("River ran dry");
+            //    break;
+            //}
 
             breaker--;
             if (breaker <= 0)
             {
                 CompleteStreamFlow(spring);
-                Debug.LogWarning("Max River Length Reached");
+                Debug.Log("Max River Length Reached");
                 break;
             }
             yield return delay;
@@ -202,7 +219,7 @@ public class TileWaterMaker : MonoBehaviour
     {
         Dictionary<Vector2Int, float> naysByElevation = new Dictionary<Vector2Int, float>();
 
-        int breaker = _maxRiverLength;
+        int breaker = _maxLakeSize;
         Vector2Int currentCoord = lake.StartCoord;
         PlaceLakeTile(currentCoord, 1f);
         AddNewCoordsNeighborsByElevation(naysByElevation, currentCoord);
@@ -219,8 +236,8 @@ public class TileWaterMaker : MonoBehaviour
 
             //reduce remaining volume;
             lake.Volume -= volumeToDevoteHere;
-            Debug.Log($"{lake.LakeName} has {lake.Volume} remaining, and" +
-                $"has {naysByElevation.Count} neighbors to check.");
+            //Debug.Log($"{lake.LakeName} has {lake.Volume} remaining, and" +
+            //    $"has {naysByElevation.Count} neighbors to check.");
             if (lake.Volume <= 0)
             {
                 Debug.Log($"{lake.LakeName} is out of volume");

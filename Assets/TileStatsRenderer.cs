@@ -222,6 +222,15 @@ public class TileStatsRenderer : MonoBehaviour
         if (volume > 0)
         {
             _tilemap_water.SetTile(coord, _water);
+            _tilemap_water.SetTile(coord + _north, _water);
+            _tilemap_water.SetTile(coord + _south, _water);
+            _tilemap_water.SetTile(coord + _west, _water);
+            _tilemap_water.SetTile(coord + _east, _water);
+            _tilemap_water.SetTile(coord + _north + _east, _water);
+            _tilemap_water.SetTile(coord + _south + _east, _water);
+            _tilemap_water.SetTile(coord + _west + _north, _water);
+            _tilemap_water.SetTile(coord + _east + _north, _water);
+
             //if (volume > _deepwaterThreshold)
             //{
             //    _tilemap_water.SetTile(coord, _water_deep);

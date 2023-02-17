@@ -5,10 +5,18 @@ using UnityEngine;
 
 public class TileStatsRandomizer : MonoBehaviour
 {
+    public static TileStatsRandomizer Instance;
     System.Random rnd;
+
 
     [SerializeField] float _noiseScale_macro = 1f;
     [SerializeField] float _noiseScale_micro = 1f;
+    [SerializeField] float _noiseScale_elevation = 1f;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -59,18 +67,37 @@ public class TileStatsRandomizer : MonoBehaviour
 
                 elevation +=
                     Mathf.Lerp(-.1f, .1f, (Mathf.PerlinNoise(
-                        ((float)x / TileStatsHolder.Instance.Dimension * _noiseScale_micro) + elevationOffset_2,
-                        ((float)y / TileStatsHolder.Instance.Dimension * _noiseScale_micro) + elevationOffset_2)));
+                        ((float)x / TileStatsHolder.Instance.Dimension * _noiseScale_elevation) + elevationOffset_2,
+                        ((float)y / TileStatsHolder.Instance.Dimension * _noiseScale_elevation) + elevationOffset_2)));
 
-                if (elevation <= TileStatsRenderer.Instance.DeepwaterThreshold)
-                {
-                    TileStatsHolder.Instance.EnforceDeepWaterWithWaterAsNeighbor(x,y);
-                }
+                //if (elevation <= TileStatsRenderer.Instance.DeepwaterThreshold)
+                //{
+                //    TileStatsHolder.Instance.EnforceDeepWaterWithWaterAsNeighbor(x,y);
+                //}
 
                 TileStatsHolder.Instance.SetTemperatureAtTile(x,y, temp);
                 TileStatsHolder.Instance.SetMoistureAtTile(x,y, moisture);
                 TileStatsHolder.Instance.SetElevationAtTile(x,y, elevation);
                 TileStatsRenderer.Instance.RenderSingleCellByCoord(x,y);
+            }
+        }
+    }
+
+    public void InjectElevationNoise()
+    {
+        float elevationOffset_3 = (float)rnd.NextDouble();
+        float elevation;
+        for (int x = 0; x < TileStatsHolder.Instance.Dimension; x++)
+        {
+            for (int y = 0; y < TileStatsHolder.Instance.Dimension; y++)
+            {
+                elevation = TileStatsHolder.Instance.GetElevationAtCoord(x, y);
+                elevation +=
+                    Mathf.Lerp(-.3f, .3f, (Mathf.PerlinNoise(
+                        ((float)x / TileStatsHolder.Instance.Dimension * _noiseScale_elevation * 5) + elevationOffset_3,
+                        ((float)y / TileStatsHolder.Instance.Dimension * _noiseScale_elevation * 5) + elevationOffset_3)));
+
+                TileStatsHolder.Instance.SetElevationAtTile(x, y, elevation);
             }
         }
     }
