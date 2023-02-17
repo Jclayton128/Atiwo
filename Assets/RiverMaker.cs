@@ -6,6 +6,10 @@ using UnityEngine;
 public class RiverMaker : MonoBehaviour
 {
     System.Random rnd;
+    Vector2Int _north = new Vector2Int(0, 1);
+    Vector2Int _south = new Vector2Int(0, -1);
+    Vector2Int _east = new Vector2Int(1, 0);
+    Vector2Int _west = new Vector2Int(-1, 0);
 
     [SerializeField] 
     [Tooltip("Approximately how many tiles the river will go before terminating")]
@@ -14,6 +18,10 @@ public class RiverMaker : MonoBehaviour
     [SerializeField]
     [Tooltip("Likelihood of forking per tile advanced")]
     float _forkChance = 0.2f;
+
+    [SerializeField]
+    [Tooltip("Likelihood of turning per tile advanced")]
+    float _turningChance = 0.2f;
 
     private void Start()
     {
@@ -34,18 +42,18 @@ public class RiverMaker : MonoBehaviour
         // Make a river iteratively, going from the sea up to the local maxima,
         // or until the river runs out of water.
 
-        (int, int) currentSpot = FindStartingSpot();
+        Vector2Int currentSpot = FindStartingSpot();
 
         float remainingVolume = startingVolume;
         int breaker = 100;
         while (remainingVolume > 0)
         {
-            (int, int) staticTest = currentSpot;
+            Vector2Int staticTest = currentSpot;
             currentSpot = AdvanceOriginalRiverOrStream(currentSpot, remainingVolume);
             if (currentSpot == staticTest) break;
 
             float moisture = TileStatsHolder.Instance.GetPrimaryStatsAtCoord(
-                currentSpot.Item1, currentSpot.Item2).Item2;
+                currentSpot.x, currentSpot.y).Item2;
             remainingVolume += (moisture - .9f);
             breaker--;
             if (breaker <= 0)
@@ -57,19 +65,19 @@ public class RiverMaker : MonoBehaviour
         }
     }
 
-    IEnumerator CreateForkedStream((int,int) startLocation, float startingVolume)
+    IEnumerator CreateForkedStream(Vector2Int startLocation, float startingVolume)
     {
         float remainingVolume = startingVolume;
         int breaker = 100;
 
         while (remainingVolume > 0)
         {
-            (int, int) staticTest = startLocation;
+            Vector2Int staticTest = startLocation;
             startLocation = AdvanceForkedStream(startLocation, remainingVolume);
             if (startLocation == staticTest) break;
             
             float moisture = TileStatsHolder.Instance.GetPrimaryStatsAtCoord(
-                startLocation.Item1, startLocation.Item2).Item2;
+                startLocation.x, startLocation.y).Item2;
             remainingVolume += (moisture - .9f);
             breaker--;
             if (breaker <= 0)
@@ -81,28 +89,28 @@ public class RiverMaker : MonoBehaviour
         }
     }
 
-    private (int, int) AdvanceOriginalRiverOrStream((int, int) currentRiverLocation, float volume)
+    private Vector2Int AdvanceOriginalRiverOrStream(Vector2Int currentRiverLocation, float volume)
     {
-        (int,int)[] neighbors = TileStatsHolder.Instance.FindNeighborCoordsWithGreatestElevationIncrease(
-            currentRiverLocation.Item1, currentRiverLocation.Item2);
+        Vector2Int[] neighbors = TileStatsHolder.Instance.FindNeighborCoordsWithGreatestElevationIncrease(
+            currentRiverLocation.x, currentRiverLocation.y);
 
         if (volume > .8f * _startingVolume)
         {
             //Create fat river, and reduce elevation here to below water.
             float waterlevel = TileStatsRenderer.Instance.WaterThreshold;
             TileStatsHolder.Instance.SetElevationAtTile(
-                currentRiverLocation.Item1, currentRiverLocation.Item2,
+                currentRiverLocation.x, currentRiverLocation.y,
                 waterlevel);
-            Vector3Int newloc = new Vector3Int(neighbors[0].Item1, neighbors[0].Item2, 0);
+            Vector3Int newloc = new Vector3Int(neighbors[0].x, neighbors[0].y, 0);
             TileStatsRenderer.Instance.RenderRiverTile(newloc);
         }
         else
         {
             //create stream
             TileStatsHolder.Instance.ModifyStreamStatusAtTile(
-            neighbors[0].Item1, neighbors[0].Item2, true);
+            neighbors[0].x, neighbors[0].y, true);
 
-            Vector3Int newloc = new Vector3Int(neighbors[0].Item1, neighbors[0].Item2, 0);
+            Vector3Int newloc = new Vector3Int(neighbors[0].x, neighbors[0].y, 0);
             TileStatsRenderer.Instance.RenderStreamTile(newloc);
 
             float forkRoll = (float)rnd.NextDouble();
@@ -120,28 +128,128 @@ public class RiverMaker : MonoBehaviour
         return neighbors[0];
     }
 
-    private (int,int) AdvanceForkedStream((int,int) forkStart, float volume)
+    private Vector2Int AdvanceForkedStream(Vector2Int forkStart, float volume)
     {
         //Debug.Log($"advancing fork at {forkStart}");
 
 
-        (int, int)[] neighbors = TileStatsHolder.Instance.FindNeighborCoordsWithGreatestElevationIncrease(
-            forkStart.Item1, forkStart.Item2);
+        Vector2Int[] neighbors = TileStatsHolder.Instance.FindNeighborCoordsWithGreatestElevationIncrease(
+            forkStart.x, forkStart.y);
 
         //create stream following flattest route
         TileStatsHolder.Instance.ModifyStreamStatusAtTile(
-        neighbors[1].Item1, neighbors[1].Item2, true);
+        neighbors[1].x, neighbors[1].y, true);
 
-        Vector3Int newloc = new Vector3Int(neighbors[1].Item1, neighbors[1].Item2, 0);
+        Vector3Int newloc = new Vector3Int(neighbors[1].x, neighbors[1].y, 0);
         TileStatsRenderer.Instance.RenderStreamTile(newloc);
 
         return neighbors[1];
     }
 
-    private (int,int) FindStartingSpot()
+    private Vector2Int FindStartingSpot()
     {
         //return a shallow water tile that is at least a certain distance away
         // from an existing starting spot.
         return TileStatsHolder.Instance.FindRandomBeachCoord();
+    }
+
+    [ContextMenu("Create River 2nd Method")]
+    public void CreateRiver_Method2()
+    {
+        StartCoroutine(nameof(CreateRiver_2), _startingVolume);
+    }
+
+    IEnumerator CreateRiver_2(float startingVolume)
+    {
+
+        Vector2Int currentSpot = FindStartingSpot();
+
+        float remainingVolume = startingVolume;
+
+        int breaker = 100;
+        float moistureInTile =0;
+        Vector2Int previousSpot = currentSpot;
+        Vector2Int historicalDirection = new Vector2Int(0, 0);
+        Vector2Int immediateDirection = new Vector2Int(0, 0);
+        while (remainingVolume > 0)
+        {
+            if (currentSpot == previousSpot)
+            {
+                Vector2Int[] dirs = TileStatsHolder.Instance.FindNeighborCoordsWithGreatestElevationIncrease(
+                    currentSpot.x, currentSpot.y);
+                immediateDirection = dirs[0]; //pick an immediate direction towards steepest neighbor
+            }
+            else
+            {
+                immediateDirection = currentSpot - previousSpot;
+            }
+
+            previousSpot = currentSpot;
+            //iteratively build the river
+            currentSpot = ChooseNextStreamSpot(currentSpot, immediateDirection, ref historicalDirection);
+
+            TileStatsHolder.Instance.ModifyStreamStatusAtTile(
+                currentSpot.x, currentSpot.y, true);
+            Vector3Int newloc = (Vector3Int)currentSpot;
+            TileStatsRenderer.Instance.RenderStreamTile(newloc);
+
+
+            moistureInTile = TileStatsHolder.Instance.GetPrimaryStatsAtCoord(
+                currentSpot.x, currentSpot.y).Item2;
+            remainingVolume += (moistureInTile - .9f);
+
+            breaker--;
+            if (breaker <= 0) break;
+            yield return new WaitForSeconds(.5f);
+        }
+    }
+
+    private Vector2Int ChooseNextStreamSpot(Vector2Int currentSpot, Vector2Int immediateDirection, ref Vector2Int historicalDirection)
+    {
+        float turn = (float)rnd.NextDouble();
+
+        //Should work historical direction in here to ensure that it isn't a completely straight run?
+        if (turn <= _turningChance) // turn
+        {
+            Vector2Int newSpot = currentSpot;
+            float turnDir = (float)rnd.NextDouble();
+
+            if (turnDir <= 0.5f) //turn CCW
+            {
+                newSpot += ProcessTurn(immediateDirection, false);
+            }
+            else //turn CW
+            {
+                newSpot += ProcessTurn(immediateDirection, true);
+            }
+
+            historicalDirection = Vector2Int.zero + newSpot;
+            return newSpot;
+        }
+        else //advance in immediate direction
+        {
+            historicalDirection += immediateDirection;
+            return currentSpot + immediateDirection;
+        }
+    }
+
+    private Vector2Int ProcessTurn(Vector2Int previousDirection, bool clockwiseTurn)
+    {
+        if (clockwiseTurn)
+        {
+            if (previousDirection == _north) return _west;
+            if (previousDirection == _east) return _north;
+            if (previousDirection == _south) return _east;
+            if (previousDirection == _west) return _south;
+        }
+        else
+        {
+            if (previousDirection == _north) return _east;
+            if (previousDirection == _east) return _south;
+            if (previousDirection == _south) return _west;
+            if (previousDirection == _west) return _north;
+        }
+        Debug.LogError("Process Turn error");
+        return _north;
     }
 }

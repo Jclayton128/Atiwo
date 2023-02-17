@@ -53,4 +53,71 @@ public static class GridSearch
         return false; // Target value not found
     }
 
+    public static Vector2Int FindCellWithHighestValue (float[,] arr)
+    {
+        // get the dimensions of the array
+        int maxY = arr.GetLength(0);
+        int maxX = arr.GetLength(1);
+
+        // initialize variables to store the maximum value and its coordinates
+        float maxValue = float.MinValue;
+        Vector2Int maxCoord = Vector2Int.zero;
+
+        // loop through each cell in the array
+        for (int y = 0; y < maxY; y++)
+        {
+            for (int x = 0; x < maxX; x++)
+            {
+                // if the current cell's value is greater than the current maximum value,
+                // update the maximum value and its coordinates
+                //Debug.Log($"X: {x}/{maxX}, Y: {y}/{maxY}");
+                if (arr[y, x] > maxValue)
+                {
+                    maxValue = arr[y, x];
+                    maxCoord.x = x;
+                    maxCoord.y = y;
+                }
+            }
+        }
+        return maxCoord;
+    }
+
+    public static float FindSumValueWithinGrid(float[,] arr)
+    {
+        // get the dimensions of the array
+        int maxY = arr.GetLength(0);
+        int maxX = arr.GetLength(1);
+
+        // initialize variables to store the maximum value and its coordinates
+        float sum = 0;
+        Vector2Int maxCoord = Vector2Int.zero;
+
+        // loop through each cell in the array
+        for (int y = 0; y < maxY; y++)
+        {
+            for (int x = 0; x < maxX; x++)
+            {
+                sum += arr[y, x];
+            }
+        }
+        return sum;
+    }
+
+    public static float[,] ExtractSubArray(float[,] sourceArray, int startX, int startY, int subArrayWidth, int subArrayHeight)
+    {
+        float[,] subArray = new float[subArrayHeight, subArrayWidth];
+
+        for (int y = 0; y < subArrayHeight; y++)
+        {
+            for (int x = 0; x < subArrayWidth; x++)
+            {
+                subArray[y, x] = sourceArray[startY + y, startX + x];
+            }
+        }
+
+        return subArray;
+    }
+
 }
+
+

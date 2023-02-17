@@ -11,16 +11,17 @@ public class TileStatsHolder : MonoBehaviour
     /// 
     /// </summary>
     /// 
-    Vector3Int _north = new Vector3Int(0, 1, 0);
-    Vector3Int _south = new Vector3Int(0, -1, 0);
-    Vector3Int _east = new Vector3Int(1, 0, 0);
-    Vector3Int _west = new Vector3Int(-1, 0, 0);
+    Vector2Int _north = new Vector2Int(0, 1);
+    Vector2Int _south = new Vector2Int(0, -1);
+    Vector2Int _east = new Vector2Int(1, 0);
+    Vector2Int _west = new Vector2Int(-1, 0);
 
     public static TileStatsHolder Instance;
     Grid _grid;
 
     //settings
     [SerializeField][Range(10, 100)] int _tileDimension = 10;
+    public int TilemapDimensions => _tileDimension;
     [SerializeField] float _startingValue = 0.5f;
 
     //state
@@ -110,6 +111,17 @@ public class TileStatsHolder : MonoBehaviour
         _moistureMap[xCoord, yCoord] = moisture;
     }
 
+    /// <summary>
+    /// Returns TRUE if the coordinate already has a stream.
+    /// </summary>
+    /// <param name="coord"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    internal bool CheckStreamStatus(Vector2Int coord)
+    {
+        return _streamMap[coord.x, coord.y];
+    }
+
     public void ModifyElevationAtTile(int xCoord, int yCoord, float elevationChange)
     {
         _elevationMap[xCoord, yCoord] += elevationChange;
@@ -190,6 +202,19 @@ public class TileStatsHolder : MonoBehaviour
     public void ModifyStreamStatusAtTile(int xCoord, int yCoord, bool isStream)
     {
         _streamMap[xCoord, yCoord] = isStream;
+
+        if (isStream)
+        {
+            //Reduce the new stream's elevation to encourage cleaner
+            //joinings with other nearby streams
+            float currentElev = _elevationMap[xCoord, yCoord];
+            Vector2Int lowCoords =
+                FindNeighborCoordsWithGreatestElevationDecrease(
+                xCoord, yCoord);
+            float lowElev = _elevationMap[lowCoords.x, lowCoords.y];
+            float splitElev = (currentElev + lowElev + lowElev) / 3f;
+            _elevationMap[xCoord, yCoord] = splitElev;
+        }
     }
 
     #endregion
@@ -244,7 +269,7 @@ public class TileStatsHolder : MonoBehaviour
         return stats;
     }
 
-    public (int,int) FindRandomBeachCoord()
+    public Vector2Int FindRandomBeachCoord()
     {
         float targetValue = TileStatsRenderer.Instance.WaterThreshold;
         int row;
@@ -256,15 +281,22 @@ public class TileStatsHolder : MonoBehaviour
             out row, out col);
         }
 
-        Debug.Log($"found a central water spot at {row},{col}");
-        return (row, col);
+        Debug.Log($"found a central water spot at {col},{row}");
+        return new Vector2Int(col, row); //col = x coord, row = y coord
     }
 
-    public (int,int)[] FindNeighborCoordsWithGreatestElevationIncrease(int xCoord, int yCoord)
-    {       
-        (int, int)[] neighborsBySteepness = new (int, int)[2];
-        neighborsBySteepness[0] = (xCoord, yCoord); //default to north if identical
-        neighborsBySteepness[1] = (xCoord, yCoord);
+    /// <summary>
+    /// Returns an array of 2 Vector2Int coordinates. index 0 is steepest neighbor,
+    /// index 1 is the flattest neighbor
+    /// </summary>
+    /// <param name="xCoord"></param>
+    /// <param name="yCoord"></param>
+    /// <returns></returns>
+    public Vector2Int[] FindNeighborCoordsWithGreatestElevationIncrease(int xCoord, int yCoord)
+    {
+        Vector2Int[] neighborsBySteepness = new Vector2Int[2];
+        neighborsBySteepness[0] = new Vector2Int(xCoord,yCoord); //default to north if identical
+        neighborsBySteepness[1] = new Vector2Int(xCoord, yCoord);
         float delta_steepest = 0;
         float delta_flattest = 1;
         float currentElev = _elevationMap[xCoord, yCoord];
@@ -278,12 +310,12 @@ public class TileStatsHolder : MonoBehaviour
             if (testElev > currentElev + delta_steepest)
             {
                 delta_steepest = testElev - currentElev;
-                neighborsBySteepness[0] = (xCoord, yCoord + 1);
+                neighborsBySteepness[0] = new Vector2Int(xCoord, yCoord) + _north;
             }
             else if (testElev > currentElev && testElev < currentElev + delta_flattest)
             {
                 delta_flattest = testElev - currentElev;
-                neighborsBySteepness[1] = (xCoord, yCoord + 1);
+                neighborsBySteepness[1] = new Vector2Int(xCoord, yCoord) + _north;
             }
         }
 
@@ -294,12 +326,12 @@ public class TileStatsHolder : MonoBehaviour
             if (testElev > currentElev + delta_steepest)
             {
                 delta_steepest = testElev - currentElev;
-                neighborsBySteepness[0] = (xCoord + 1, yCoord);
+                neighborsBySteepness[0] = new Vector2Int(xCoord, yCoord) + _east;
             }
             else if (testElev > currentElev && testElev < currentElev + delta_flattest)
             {
                 delta_flattest = testElev - currentElev;
-                neighborsBySteepness[1] = (xCoord + 1, yCoord);
+                neighborsBySteepness[1] = new Vector2Int(xCoord, yCoord) + _east;
             }
         }
 
@@ -312,12 +344,12 @@ public class TileStatsHolder : MonoBehaviour
             if (testElev > currentElev + delta_steepest)
             {
                 delta_steepest = testElev - currentElev;
-                neighborsBySteepness[0] = (xCoord, yCoord - 1);
+                neighborsBySteepness[0] = new Vector2Int(xCoord, yCoord) + _south;
             }
             else if (testElev > currentElev && testElev < currentElev + delta_flattest)
             {
                 delta_flattest = testElev - currentElev;
-                neighborsBySteepness[1] = (xCoord, yCoord - 1);
+                neighborsBySteepness[1] = new Vector2Int(xCoord, yCoord) + _south;
             }
         }
 
@@ -329,12 +361,12 @@ public class TileStatsHolder : MonoBehaviour
             if (testElev > currentElev + delta_steepest)
             {
                 delta_steepest = testElev - currentElev;
-                neighborsBySteepness[0] = (xCoord - 1, yCoord);
+                neighborsBySteepness[0] = new Vector2Int(xCoord, yCoord) + _west;
             }
             else if (testElev > currentElev && testElev < currentElev + delta_flattest)
             {
                 delta_flattest = testElev - currentElev;
-                neighborsBySteepness[1] = (xCoord - 1, yCoord);
+                neighborsBySteepness[1] = new Vector2Int(xCoord, yCoord) + _west;
             }
         }
 
@@ -352,11 +384,85 @@ public class TileStatsHolder : MonoBehaviour
             if (testElev > currentElev && testElev < currentElev + delta_flattest)
             {
                 delta_flattest = testElev - currentElev;
-                neighborsBySteepness[1] = (xCoord, yCoord + 1);
+                neighborsBySteepness[1] = new Vector2Int(xCoord, yCoord) + _north;
             }
         }
 
         return neighborsBySteepness;
 
     }
+
+    public Vector2Int FindNeighborCoordsWithGreatestElevationDecrease(int xCoord, int yCoord)
+    {
+        Vector2Int lowestNeighbor = new Vector2Int(xCoord,yCoord);
+        float currentElev = _elevationMap[xCoord, yCoord];
+        float elevationToBeat = currentElev;
+
+        //north
+        if (yCoord + 1 < _tileDimension)
+        {
+            if (_elevationMap[xCoord, yCoord + 1] < elevationToBeat)
+            {
+                elevationToBeat = _elevationMap[xCoord, yCoord + 1];
+                lowestNeighbor = new Vector2Int(xCoord, yCoord) + _north;
+            }
+        }
+
+        //east
+        if (xCoord + 1 < _tileDimension)
+        {
+            if (_elevationMap[xCoord + 1, yCoord] < elevationToBeat)
+            {
+                elevationToBeat = _elevationMap[xCoord + 1, yCoord];
+                lowestNeighbor = new Vector2Int(xCoord, yCoord) + _east;
+            }
+        }
+
+        //south
+        if (yCoord - 1 > 0 )
+        {
+            if (_elevationMap[xCoord, yCoord - 1] < elevationToBeat)
+            {
+                elevationToBeat = _elevationMap[xCoord, yCoord - 1];
+                lowestNeighbor = new Vector2Int(xCoord, yCoord) + _south;
+            }
+        }
+
+        //west
+        if (xCoord - 1 > 0)
+        {
+            if (_elevationMap[xCoord - 1, yCoord] < elevationToBeat)
+            {
+                elevationToBeat = _elevationMap[xCoord - 1, yCoord];
+                lowestNeighbor = new Vector2Int(xCoord, yCoord) + _west;
+            }
+        }
+
+        return lowestNeighbor;
+    }
+
+
+    internal Vector2Int FindHighestCellWithinWaterGrid(Vector2Int origin, Vector2Int farCorner)
+    {
+        int xWidth = farCorner.x - origin.x + 1;
+        int yHeight = farCorner.y - origin.y + 1;
+
+        //Debug.Log($"Passing array of size {xWidth},{yHeight}");
+        float[,] arr = GridSearch.ExtractSubArray(_elevationMap,
+            origin.x, origin.y, xWidth, yHeight);
+
+        return origin + GridSearch.FindCellWithHighestValue(arr);
+    }
+
+
+    internal float FindWaterVolumeWithinWaterGrid(Vector2Int origin, Vector2Int farCorner)
+    {
+        int xWidth = farCorner.x - origin.x;
+        int yHeight = farCorner.y - origin.y;
+        float[,] arr = GridSearch.ExtractSubArray(_moistureMap,
+            origin.x, origin.y, xWidth, yHeight);
+        return GridSearch.FindSumValueWithinGrid(arr);
+    }
+
+
 }
