@@ -2073,8 +2073,7 @@ MonoBehaviour:
   _snow_light: {fileID: 11400000, guid: 9e81229c8a0a3cf41a6c082c7e7f26fd, type: 2}
   _mountain_odd: {fileID: 11400000, guid: c1ed47f87e88d774386643cfed4227bf, type: 2}
   _mountain_even: {fileID: 11400000, guid: 925c297ecc3d42e4081eaa5a2a3d6adf, type: 2}
-  _mountain_bottom_even: {fileID: 11400000, guid: 433ebae73d1838242b02263dc6a795cb, type: 2}
-  _mountain_bottom_odd: {fileID: 11400000, guid: ded40f18dc07c0c4bb447c3b11d1cf64, type: 2}
+  _mountain_solitairy: {fileID: 11400000, guid: ad368348af05eb646b57eb408cf7816d, type: 2}
   _water: {fileID: 11400000, guid: ac446326b45e8954a8bbcd4ff846ef97, type: 2}
   _water_deep: {fileID: 11400000, guid: fc4667b65ef7f2c4086fc9b082d5bc90, type: 2}
   _stream_slow: {fileID: 11400000, guid: 396d07cd124817b4ea1f21c50136ee29, type: 2}
@@ -2103,7 +2102,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08cc98d4f49b07d48bceaa2f9a8890de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tileDimension: 50
+  _tileDimension: 100
   _startingValue: 0.5
 --- !u!114 &517811939
 MonoBehaviour:
@@ -2117,9 +2116,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7c7f1026b12ce44cb3bb645cc472735, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _noiseScale_macro: 1
-  _noiseScale_micro: 5
-  _noiseScale_elevation: 7
+  _noiseScale_macro: 25
+  _noiseScale_micro: 50
+  _noiseScale_elevation: 100
 --- !u!114 &517811941
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2133,7 +2132,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _waterGridSize: 25
-  _soilSoakupFactor: 2
+  _soilSoakupFactor: 1
   _uphillTolerance: 0
 --- !u!1 &519420028
 GameObject:
@@ -2778,7 +2777,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1839735485 &760727377
 Tilemap:
   m_ObjectHideFlags: 0

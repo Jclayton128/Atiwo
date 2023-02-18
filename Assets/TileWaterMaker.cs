@@ -342,6 +342,7 @@ public class TileWaterMaker : MonoBehaviour
     {
         TileStatsHolder.Instance.ModifyWaterStatusAtTile(
             coord.x, coord.y, volume, true);
+
         TileStatsRenderer.Instance.RenderLakeTile((Vector3Int)coord);
     }
 

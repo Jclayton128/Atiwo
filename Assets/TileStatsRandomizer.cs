@@ -42,33 +42,33 @@ public class TileStatsRandomizer : MonoBehaviour
             {
                 float temp =
                     Mathf.Clamp01(Mathf.PerlinNoise(
-                        ((float)x / TileStatsHolder.Instance.Dimension * _noiseScale_macro) + tempOffset_1,
-                        ((float)y / TileStatsHolder.Instance.Dimension * _noiseScale_macro) + tempOffset_1));
+                        ((float)x /  _noiseScale_macro) + tempOffset_1,
+                        ((float)y /  _noiseScale_macro) + tempOffset_1));
 
                 temp +=
                     Mathf.Lerp(-.3f, .3f, (Mathf.PerlinNoise(
-                        ((float)x / TileStatsHolder.Instance.Dimension * _noiseScale_micro) + tempOffset_2,
-                        ((float)y / TileStatsHolder.Instance.Dimension * _noiseScale_micro) + tempOffset_2)));
+                        ((float)x /  _noiseScale_micro) + tempOffset_2,
+                        ((float)y / _noiseScale_micro) + tempOffset_2)));
 
                 float moisture =
                     Mathf.Clamp01(Mathf.PerlinNoise(
-                        ((float)x / TileStatsHolder.Instance.Dimension * _noiseScale_macro) + moistOffset_1,
-                        ((float)y / TileStatsHolder.Instance.Dimension * _noiseScale_macro) + moistOffset_1));
+                        ((float)x /  _noiseScale_macro) + moistOffset_1,
+                        ((float)y /  _noiseScale_macro) + moistOffset_1));
 
                 moisture +=
                     Mathf.Lerp(-.3f, .3f, (Mathf.PerlinNoise(
-                        ((float)x / TileStatsHolder.Instance.Dimension * _noiseScale_micro) + moistOffset_2,
-                        ((float)y / TileStatsHolder.Instance.Dimension * _noiseScale_micro) + moistOffset_2)));
+                        ((float)x /  _noiseScale_micro) + moistOffset_2,
+                        ((float)y /  _noiseScale_micro) + moistOffset_2)));
                 
                 float elevation =
                     Mathf.Clamp01(Mathf.PerlinNoise(
-                        ((float)x / TileStatsHolder.Instance.Dimension * _noiseScale_macro) + elevationOffset_1,
-                        ((float)y / TileStatsHolder.Instance.Dimension * _noiseScale_macro) + elevationOffset_1));
+                        ((float)x /  _noiseScale_macro) + elevationOffset_1,
+                        ((float)y / _noiseScale_macro) + elevationOffset_1));
 
                 elevation +=
                     Mathf.Lerp(-.1f, .1f, (Mathf.PerlinNoise(
-                        ((float)x / TileStatsHolder.Instance.Dimension * _noiseScale_elevation) + elevationOffset_2,
-                        ((float)y / TileStatsHolder.Instance.Dimension * _noiseScale_elevation) + elevationOffset_2)));
+                        ((float)x /  _noiseScale_elevation) + elevationOffset_2,
+                        ((float)y /  _noiseScale_elevation) + elevationOffset_2)));
 
                 //if (elevation <= TileStatsRenderer.Instance.DeepwaterThreshold)
                 //{

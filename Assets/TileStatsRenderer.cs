@@ -50,6 +50,7 @@ public class TileStatsRenderer : MonoBehaviour
     [SerializeField] TileBase _snow_light = null;
     [SerializeField] TileBase _mountain_odd = null;
     [SerializeField] TileBase _mountain_even = null;
+    [SerializeField] TileBase _mountain_solitairy = null;
     //[SerializeField] TileBase _mountain_bottom_even = null;
     //[SerializeField] TileBase _mountain_bottom_odd = null;
     [SerializeField] TileBase _water = null;
@@ -107,33 +108,34 @@ public class TileStatsRenderer : MonoBehaviour
     
     public void RenderAllMountains()
     {
-        for (int x = 0; x < TileStatsHolder.Instance.Dimension; x++)
+        for (int x = 1; x < TileStatsHolder.Instance.Dimension-1; x++)
         {
-            for (int y = 0; y < TileStatsHolder.Instance.Dimension; y++)
+            for (int y = 1; y < TileStatsHolder.Instance.Dimension-1; y++)
             {
                 if (TileStatsHolder.Instance.GetWaterVolumeAtCoord(x, y) > 0) continue;
                 if (TileStatsHolder.Instance.GetElevationAtCoord(x,y) > _mountainThreshold)
                 {
                     Vector3Int np = new Vector3Int(x, y, 0);
-                    if ((x+y) % 2 == 0)
+                    if ((x+y) % 2 == 0 )
                     {
-                        _tilemap_mountains.SetTile(np, _mountain_even);
-                        _tilemap_mountains.SetTile(np + _east, _mountain_odd);
-                        _tilemap_mountains.SetTile(np + _north, _mountain_odd);
-                        _tilemap_mountains.SetTile(np + _north + _east, _mountain_even);
+                        if (_tilemap_water.HasTile(np)) continue;
 
+                        if (_tilemap_water.HasTile(np + _north) ||
+                            _tilemap_water.HasTile(np +_east) ||
+                            _tilemap_water.HasTile(np + _south) ||
+                            _tilemap_water.HasTile(np + _west))
+                        {
+                            if (!_tilemap_mountains.HasTile(np)) _tilemap_mountains.SetTile(np, _mountain_solitairy);
+                        }
+                        else
+                        {
+                            _tilemap_mountains.SetTile(np, _mountain_even);
+                            _tilemap_mountains.SetTile(np + _east, _mountain_odd);
+                            _tilemap_mountains.SetTile(np + _north, _mountain_odd);
+                            _tilemap_mountains.SetTile(np + _north + _east, _mountain_even);
+                        }
+                        
                     }
-                    //else
-                    //{
-                    //    _tilemap_mountains.SetTile(np, _mountain_odd);
-                    //    _tilemap_mountains.SetTile(np + _east, _mountain_even);
-                    //    _tilemap_mountains.SetTile(np + _north, _mountain_even);
-                    //    _tilemap_mountains.SetTile(np + _north + _east, _mountain_odd);
-                    //}
-
-
-
-
                 }
             }
         }
