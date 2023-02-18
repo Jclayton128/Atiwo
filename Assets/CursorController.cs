@@ -163,7 +163,10 @@ public class CursorController : MonoBehaviour
 
         //UI_TileInspector.Instance.SetTemperature(td.Temperature);
         UI_TileInspector.Instance.SetElevation(td.Elevation);
-        UI_TileInspector.Instance.SetMoisture(td.Moisture);
+        //UI_TileInspector.Instance.SetMoisture(td.Moisture);
+        UI_TileInspector.Instance.SetWaterVolume(
+            TileStatsHolder.Instance.GetWaterVolumeAtCoord(
+                _cursorCellCoord.x, _cursorCellCoord.y));
         UI_TileInspector.Instance.SetPopulation(td.Population);
         UI_TileInspector.Instance.SetTraffic(td.Traffic);
         UI_TileInspector.Instance.SetVegetation(td.Vegetation);

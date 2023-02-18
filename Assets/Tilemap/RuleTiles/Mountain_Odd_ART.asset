@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a5263f4462dfe44e9c1bed4ab09835a, type: 3}
   m_Name: Mountain_Odd_ART
   m_EditorClassIdentifier: 
-  m_DefaultSprite: {fileID: -1222810102395371549, guid: acfd90701e9c63543b83752b1f0e69f0, type: 3}
+  m_DefaultSprite: {fileID: 6808684236197766291, guid: acfd90701e9c63543b83752b1f0e69f0, type: 3}
   m_DefaultColliderType: 1
   RuleNames:
   - Click to set rule name
@@ -79,7 +79,7 @@ MonoBehaviour:
     - {fileID: -5150426759200209440, guid: acfd90701e9c63543b83752b1f0e69f0, type: 3}
     - {fileID: -8306237855056047948, guid: acfd90701e9c63543b83752b1f0e69f0, type: 3}
     m_AnimationSpeed: 1
-    m_PerlinScale: 0.5
+    m_PerlinScale: 0.615
     m_RuleTransform: 0
     m_Output: 1
     m_ColliderType: 1

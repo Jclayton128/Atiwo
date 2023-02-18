@@ -146,7 +146,7 @@ public class TileWaterMaker : MonoBehaviour
                     coord.x, coord.y, _uphillTolerance);
             if (previousCoord == coord)
             {
-                Debug.Log("Local Minimum Found");
+                //Debug.Log("Local Minimum Found");
                 HandleLocalMinimumFound(coord, volume);
                 CompleteStreamFlow(spring);
                 break;
@@ -163,8 +163,8 @@ public class TileWaterMaker : MonoBehaviour
             //PlaceStreamTile(coord);
 
 
-            float moisture = TileStatsHolder.Instance.GetPrimaryStatsAtCoord(
-                coord.x, coord.y).Item2;
+            float moisture = TileStatsHolder.Instance.GetMoistureAtCoord(
+                coord.x, coord.y);
             volume += (moisture - _soilSoakupFactor);
 
             /// Disabling the feature where rivers can run dry before reaching
@@ -276,7 +276,7 @@ public class TileWaterMaker : MonoBehaviour
     private static void AddNewCoordsNeighborsByElevation(Dictionary<Vector2Int, float> naysByElevation, Vector2Int currentCoord)
     {
         (Vector2Int, float)[] nb = TileStatsHolder.Instance.
-            GetNeighborCellsWithElevationAndZeroWater(currentCoord);
+            GetNeighborCellsWithElevationAndLowWater(currentCoord);
         for (int i = 0; i < nb.Length; i++)
         {
             if (naysByElevation.ContainsKey(nb[i].Item1)) continue;
@@ -342,6 +342,30 @@ public class TileWaterMaker : MonoBehaviour
     {
         TileStatsHolder.Instance.ModifyWaterStatusAtTile(
             coord.x, coord.y, volume, true);
+
+        if (coord.y + 1 < TileStatsHolder.Instance.TilemapDimensions)
+        {
+            TileStatsHolder.Instance.ModifyWaterStatusAtTile(
+                coord.x, coord.y + 1, 4f, false);
+        }
+
+        if (coord.x + 1 < TileStatsHolder.Instance.TilemapDimensions)
+        {
+            TileStatsHolder.Instance.ModifyWaterStatusAtTile(
+            coord.x + 1, coord.y, 4f, false);
+        }
+
+        if (coord.y - 1 > 0)
+        {
+            TileStatsHolder.Instance.ModifyWaterStatusAtTile(
+                coord.x, coord.y - 1, 4f, false);
+        }
+
+        if (coord.x - 1 > 0)
+        {
+            TileStatsHolder.Instance.ModifyWaterStatusAtTile(
+                coord.x - 1, coord.y, 4f, false);
+        }
 
         TileStatsRenderer.Instance.RenderLakeTile((Vector3Int)coord);
     }

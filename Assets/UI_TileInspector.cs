@@ -54,4 +54,9 @@ public class UI_TileInspector : MonoBehaviour
         _temperatureTMP.text = $"Elev: {elevation}";
     }
 
+    public void SetWaterVolume(float volume)
+    {
+        _moistureTMP.text = $"H20: {volume}";
+    }
+
 }

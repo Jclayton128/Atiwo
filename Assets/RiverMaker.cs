@@ -52,8 +52,8 @@ public class RiverMaker : MonoBehaviour
             currentSpot = AdvanceOriginalRiverOrStream(currentSpot, remainingVolume);
             if (currentSpot == staticTest) break;
 
-            float moisture = TileStatsHolder.Instance.GetPrimaryStatsAtCoord(
-                currentSpot.x, currentSpot.y).Item2;
+            float moisture = TileStatsHolder.Instance.GetMoistureAtCoord(
+                currentSpot.x, currentSpot.y);
             remainingVolume += (moisture - .9f);
             breaker--;
             if (breaker <= 0)
@@ -76,8 +76,8 @@ public class RiverMaker : MonoBehaviour
             startLocation = AdvanceForkedStream(startLocation, remainingVolume);
             if (startLocation == staticTest) break;
             
-            float moisture = TileStatsHolder.Instance.GetPrimaryStatsAtCoord(
-                startLocation.x, startLocation.y).Item2;
+            float moisture = TileStatsHolder.Instance.GetMoistureAtCoord(
+                startLocation.x, startLocation.y);
             remainingVolume += (moisture - .9f);
             breaker--;
             if (breaker <= 0)
@@ -194,8 +194,8 @@ public class RiverMaker : MonoBehaviour
             TileStatsRenderer.Instance.RenderStreamTile(newloc);
 
 
-            moistureInTile = TileStatsHolder.Instance.GetPrimaryStatsAtCoord(
-                currentSpot.x, currentSpot.y).Item2;
+            moistureInTile = TileStatsHolder.Instance.GetMoistureAtCoord(
+                currentSpot.x, currentSpot.y);
             remainingVolume += (moistureInTile - .9f);
 
             breaker--;

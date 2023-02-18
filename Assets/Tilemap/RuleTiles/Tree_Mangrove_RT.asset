@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a5263f4462dfe44e9c1bed4ab09835a, type: 3}
+  m_Name: Tree_Mangrove_RT
+  m_EditorClassIdentifier: 
+  m_DefaultSprite: {fileID: -2759584205064447544, guid: 1aedee28fb4830b4bb6b514e709c9855, type: 3}
+  m_DefaultColliderType: 1
+  RuleNames:
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  firstExists: 1
+  These: 0
+  DefaultNumOfThese: 0
+  TheseNumberOfTiles: 00000000000000
+  NotZero: 5
+  firstExists2: 1
+  NotThese: 0
+  DefaultNumOfNotThese: 0
+  NotTheseNumberOfTiles: 000000000000
+  t1: []
+  t2: []
+  t3: []
+  t4: []
+  t5: []
+  t6: []
+  t7: []
+  n1: []
+  n2: []
+  n3: []
+  n4: []
+  n5: []
+  n6: []
+  m_TilingRules:
+  - m_Neighbors: 0000000000000000000000000000000000000000000000000000000000000000
+    m_Sprites:
+    - {fileID: -2759584205064447544, guid: 1aedee28fb4830b4bb6b514e709c9855, type: 3}
+    - {fileID: 9090898637415856515, guid: 1aedee28fb4830b4bb6b514e709c9855, type: 3}
+    - {fileID: -2868886950977394143, guid: 1aedee28fb4830b4bb6b514e709c9855, type: 3}
+    - {fileID: 1171351246955356657, guid: 1aedee28fb4830b4bb6b514e709c9855, type: 3}
+    - {fileID: -5061375179767840604, guid: 1aedee28fb4830b4bb6b514e709c9855, type: 3}
+    - {fileID: -864768576223636362, guid: 1aedee28fb4830b4bb6b514e709c9855, type: 3}
+    - {fileID: 9040429037300198705, guid: 1aedee28fb4830b4bb6b514e709c9855, type: 3}
+    - {fileID: 6156359197105241837, guid: 1aedee28fb4830b4bb6b514e709c9855, type: 3}
+    m_AnimationSpeed: 1
+    m_PerlinScale: 0.5
+    m_RuleTransform: 0
+    m_Output: 1
+    m_ColliderType: 1
+    m_RandomTransform: 0

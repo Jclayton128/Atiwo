@@ -34,8 +34,6 @@ public class TileStatsRandomizer : MonoBehaviour
         float elevationOffset_2 = (float)rnd.NextDouble();
         //Debug.Log($"to: {tempOffset_1}. mo: {moistOffset_1}");
 
-        TileStatsRenderer.Instance.ClearAllBaseTiles();
-
         for (int x = 0; x < TileStatsHolder.Instance.Dimension; x++)
         {
             for (int y = 0; y < TileStatsHolder.Instance.Dimension; y++)
@@ -50,6 +48,8 @@ public class TileStatsRandomizer : MonoBehaviour
                         ((float)x /  _noiseScale_micro) + tempOffset_2,
                         ((float)y / _noiseScale_micro) + tempOffset_2)));
 
+                //temp = Mathf.Clamp01(temp);
+
                 float moisture =
                     Mathf.Clamp01(Mathf.PerlinNoise(
                         ((float)x /  _noiseScale_macro) + moistOffset_1,
@@ -59,7 +59,9 @@ public class TileStatsRandomizer : MonoBehaviour
                     Mathf.Lerp(-.3f, .3f, (Mathf.PerlinNoise(
                         ((float)x /  _noiseScale_micro) + moistOffset_2,
                         ((float)y /  _noiseScale_micro) + moistOffset_2)));
-                
+
+                //moisture = Mathf.Clamp01(moisture);
+
                 float elevation =
                     Mathf.Clamp01(Mathf.PerlinNoise(
                         ((float)x /  _noiseScale_macro) + elevationOffset_1,
@@ -70,6 +72,8 @@ public class TileStatsRandomizer : MonoBehaviour
                         ((float)x /  _noiseScale_elevation) + elevationOffset_2,
                         ((float)y /  _noiseScale_elevation) + elevationOffset_2)));
 
+                //elevation = Mathf.Clamp01(elevation);
+
                 //if (elevation <= TileStatsRenderer.Instance.DeepwaterThreshold)
                 //{
                 //    TileStatsHolder.Instance.EnforceDeepWaterWithWaterAsNeighbor(x,y);
@@ -78,7 +82,8 @@ public class TileStatsRandomizer : MonoBehaviour
                 TileStatsHolder.Instance.SetTemperatureAtTile(x,y, temp);
                 TileStatsHolder.Instance.SetMoistureAtTile(x,y, moisture);
                 TileStatsHolder.Instance.SetElevationAtTile(x,y, elevation);
-                TileStatsRenderer.Instance.RenderSingleCellByCoord(x,y);
+                TileStatsHolder.Instance.CategorizeTileAtCoord(x, y);
+                //TileStatsRenderer.Instance.RenderSingleCellByCoord(x,y);
             }
         }
     }

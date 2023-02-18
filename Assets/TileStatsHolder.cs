@@ -5,12 +5,16 @@ using UnityEngine;
 
 public class TileStatsHolder : MonoBehaviour
 {
+    private enum MoistureCategory { Dry, MidWet, Wet }
+    private enum TemperatureCategory { Cold, MidTemp, Hot }
 
-    /// <summary>
-    /// This holds multiple Dictionary<Vec2Int, float>, one for each tile data parameter (temperature, moisture, etc).
-    /// 
-    /// </summary>
-    /// 
+    public enum BiomeCategory
+    {
+        ColdDry, ColdMidwet, ColdWet,
+        MidtempDry, MidtempMidwet, MidtempWet,
+        HotDry, HotMidwet, HotWet, Unassigned
+    }
+
     Vector2Int _north = new Vector2Int(0, 1);
     Vector2Int _south = new Vector2Int(0, -1);
     Vector2Int _east = new Vector2Int(1, 0);
@@ -24,15 +28,14 @@ public class TileStatsHolder : MonoBehaviour
     public int TilemapDimensions => _tileDimension;
     [SerializeField] float _startingValue = 0.5f;
 
+    [Header("Temperature/Moisture Thresholds")]
+    [SerializeField] float _dryThreshold = 0.3f;
+    [SerializeField] float _wetThreshold = 0.7f;
+    [SerializeField] float _coldThreshold = 0.3f;
+    [SerializeField] float _hotThreshold = 0.7f;
+    [SerializeField] float _mountainThreshold = 0.7f;
     //state
     public int Dimension => _tileDimension;
-    //Dictionary<Vector3Int, float> _temperatureMap = new Dictionary<Vector3Int, float>();
-    //Dictionary<Vector3Int, float> _moistureMap = new Dictionary<Vector3Int, float>();
-    //Dictionary<Vector3Int, float> _elevationMap = new Dictionary<Vector3Int, float>();
-
-    //Dictionary<Vector3Int, float> _trafficMap = new Dictionary<Vector3Int, float>();
-    //Dictionary<Vector3Int, float> _vegetationMap = new Dictionary<Vector3Int, float>();
-    //Dictionary<Vector3Int, float> _populationMap = new Dictionary<Vector3Int, float>();
 
     float[,] _temperatureMap;
     float[,] _moistureMap;
@@ -41,10 +44,17 @@ public class TileStatsHolder : MonoBehaviour
     float[,] _vegetationMap;
     float[,] _populationMap;
     float[,] _waterMap;
+    BiomeCategory[,] _biomeMap;
+
 
     private void Awake()
     {
         Instance = this;
+        PrepareMaps();
+    }
+
+    private void PrepareMaps()
+    {
         _temperatureMap = new float[_tileDimension, _tileDimension];
         _moistureMap = new float[_tileDimension, _tileDimension];
         _elevationMap = new float[_tileDimension, _tileDimension];
@@ -52,7 +62,7 @@ public class TileStatsHolder : MonoBehaviour
         _vegetationMap = new float[_tileDimension, _tileDimension];
         _populationMap = new float[_tileDimension, _tileDimension];
         _waterMap = new float[_tileDimension, _tileDimension];
-
+        _biomeMap = new BiomeCategory[_tileDimension, _tileDimension];
         _grid = GetComponent<Grid>();
     }
 
@@ -70,6 +80,7 @@ public class TileStatsHolder : MonoBehaviour
         Array.Clear(_vegetationMap, 0, _tileDimension);
         Array.Clear(_populationMap, 0, _tileDimension);
         Array.Clear(_waterMap, 0, _tileDimension);
+        Array.Clear(_biomeMap, 0, _tileDimension);
 
         Vector3Int coord = new Vector3Int(0, 0, 0);
         for (int x = 0; x < _tileDimension; x++)
@@ -86,6 +97,7 @@ public class TileStatsHolder : MonoBehaviour
                 _vegetationMap[x, y] = 0;
                 _populationMap[x, y] = 0;
                 _waterMap[x, y] = 0;
+                _biomeMap[x, y] = BiomeCategory.Unassigned;
             }
         }
     }
@@ -124,6 +136,10 @@ public class TileStatsHolder : MonoBehaviour
         _elevationMap[xCoord, yCoord] += elevationChange;
     }
 
+    public void SetElevationAtTileToMountainValue(int xCoord, int yCoord)
+    {
+        _elevationMap[xCoord, yCoord] = _mountainThreshold + 0.001f;
+    }
     public void SetElevationAtTile(int xCoord, int yCoord, float elevation)
     {
         _elevationMap[xCoord, yCoord] = elevation;
@@ -282,13 +298,14 @@ public class TileStatsHolder : MonoBehaviour
         else return 0;
     }
 
-    public (float, float) GetPrimaryStatsAtCoord(int xCoord, int yCoord)
+    public float GetTemperatureAtCoord(int xCoord, int yCoord)
     {
-        (float, float) stats;
-        stats.Item1 = _temperatureMap[xCoord, yCoord];
-        stats.Item2 = _moistureMap[xCoord, yCoord];
+        return _temperatureMap[xCoord, yCoord];
+    }
 
-        return stats;
+    public float GetMoistureAtCoord(int xCoord, int yCoord)
+    {
+        return _moistureMap[xCoord, yCoord];
     }
 
     public float GetWaterVolumeAtCoord(int xCoord, int yCoord)
@@ -296,7 +313,7 @@ public class TileStatsHolder : MonoBehaviour
         return _waterMap[xCoord, yCoord];
     }
 
-    public (Vector2Int, float)[] GetNeighborCellsWithElevationAndZeroWater(Vector2Int sourceCoord)
+    public (Vector2Int, float)[] GetNeighborCellsWithElevationAndLowWater(Vector2Int sourceCoord)
     {
         int orthoCount = 4;
         (Vector2Int, float)[] nce = new (Vector2Int, float)[orthoCount];
@@ -308,7 +325,7 @@ public class TileStatsHolder : MonoBehaviour
             Vector2Int coord = nays[i];
             nce[i].Item1 = coord;
             if (coord.x <0 || coord.y < 0 ||
-                _waterMap[coord.x, coord.y] > 0)
+                _waterMap[coord.x, coord.y] > 5)
             {
                 nce[i].Item2 = -1;
 
@@ -322,6 +339,27 @@ public class TileStatsHolder : MonoBehaviour
         return nce;
     }
 
+    public BiomeCategory GetBiomeCategoryAtCoord(int xCoord, int yCoord)
+    {
+        return _biomeMap[xCoord, yCoord];
+    }
+    
+    public float GetVegetationChanceAtCoord(int xCoord, int yCoord)
+    {
+        return _vegetationMap[xCoord, yCoord];
+    }
+
+    public bool CheckIfWaterShouldBePresentAtCoord(int xCoord, int yCoord)
+    {
+        if (_waterMap[xCoord, yCoord] > 0) return true;
+        else return false;
+    }
+
+    public bool CheckIfMountainShouldBePresentAtCoord(int xCoord, int yCoord)
+    {
+        if (_elevationMap[xCoord, yCoord] >= _mountainThreshold) return true;
+        else return false;
+    }
     #endregion
 
     #region Finds
@@ -573,6 +611,116 @@ public class TileStatsHolder : MonoBehaviour
         float[,] arr = GridSearch.ExtractSubArray(_moistureMap,
             origin.x, origin.y, xWidth, yHeight);
         return GridSearch.FindSumValueWithinGrid(arr);
+    }
+
+    #endregion
+
+    #region Biome Categorization
+
+    public void CategorizeTileAtCoord(int xCoord, int yCoord)
+    {
+        float moisture = _moistureMap[xCoord, yCoord];
+        float temp = _temperatureMap[xCoord,yCoord];
+        MoistureCategory moistureCategory = ConvertMoistureIntoMoistureCat(moisture);
+        TemperatureCategory tempCat = ConvertTemperatureIntoTempCat(temp);
+
+        BiomeCategory bc = BiomeCategory.Unassigned;
+        switch (moistureCategory)
+        {
+            case MoistureCategory.Dry:
+                switch (tempCat)
+                {
+                    case TemperatureCategory.Cold:
+                        bc = BiomeCategory.ColdDry;
+                        break;
+                    case TemperatureCategory.MidTemp:
+                        bc = BiomeCategory.MidtempDry;
+                        break;
+                    case TemperatureCategory.Hot:
+                        bc = BiomeCategory.HotDry;
+                        break;
+                }
+                break;
+
+            case MoistureCategory.MidWet:
+                switch (tempCat)
+                {
+                    case TemperatureCategory.Cold:
+                        bc = BiomeCategory.ColdMidwet;
+                        break;
+                    case TemperatureCategory.MidTemp:
+                        bc = BiomeCategory.MidtempMidwet;
+                        break;
+                    case TemperatureCategory.Hot:
+                        bc = BiomeCategory.HotMidwet;
+                        break;
+                }
+                break;
+
+            case MoistureCategory.Wet:
+                switch (tempCat)
+                {
+                    case TemperatureCategory.Cold:
+                        bc = BiomeCategory.ColdWet;
+                        break;
+                    case TemperatureCategory.MidTemp:
+                        bc = BiomeCategory.MidtempWet;
+                        break;
+                    case TemperatureCategory.Hot:
+                        bc = BiomeCategory.HotWet;
+                        break;
+                }
+                break;
+        }
+
+
+        float chanceforVegetation = ConvertBiomeAndMoistureIntoVegetationChance(moistureCategory, moisture);
+        _vegetationMap[xCoord, yCoord] = chanceforVegetation;
+        _biomeMap[xCoord, yCoord] = bc;
+    }
+
+    private float ConvertBiomeAndMoistureIntoVegetationChance(MoistureCategory moistureCat, float moisture)
+    {
+        float chance = 0;
+        switch (moistureCat)
+        {
+            case MoistureCategory.Dry:
+                chance = moisture / _dryThreshold /10f;
+                break;
+            case MoistureCategory.MidWet:
+                chance = moisture / _wetThreshold / 5f;
+                break;
+            case MoistureCategory.Wet:
+                chance = moisture / 2f;
+                break;
+        }
+        return chance;
+    }
+
+    private MoistureCategory ConvertMoistureIntoMoistureCat(float moisture)
+    {
+        if (moisture < _dryThreshold)
+        {
+            return MoistureCategory.Dry;
+        }
+        if (moisture > _wetThreshold)
+        {
+            return MoistureCategory.Wet;
+        }
+        else return MoistureCategory.MidWet;
+    }
+
+    private TemperatureCategory ConvertTemperatureIntoTempCat(float temperature)
+    {
+        if (temperature < _coldThreshold)
+        {
+            return TemperatureCategory.Cold;
+        }
+        if (temperature > _hotThreshold)
+        {
+            return TemperatureCategory.Hot;
+        }
+        else return TemperatureCategory.MidTemp;
     }
 
     #endregion
