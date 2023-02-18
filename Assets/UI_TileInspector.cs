@@ -49,4 +49,9 @@ public class UI_TileInspector : MonoBehaviour
         _vegetationTMP.text = $"Vegetation: {vegetation}";
     }
 
+    public void SetElevation(float elevation)
+    {
+        _temperatureTMP.text = $"Elev: {elevation}";
+    }
+
 }

@@ -29,6 +29,7 @@ public class TileStatsRenderer : MonoBehaviour
     [SerializeField] Tilemap _tilemap_swamp_light = null;
     [SerializeField] Tilemap _tilemap_snow = null;
     [SerializeField] Tilemap _tilemap_snow_light = null;
+    [SerializeField] Tilemap _tilemap_mountains = null;
     [SerializeField] Tilemap _tilemap_water = null;
 
     [SerializeField] Tilemap _tilemap_population_light = null;
@@ -47,6 +48,10 @@ public class TileStatsRenderer : MonoBehaviour
     [SerializeField] TileBase _swamp_light = null;
     [SerializeField] TileBase _snow = null;
     [SerializeField] TileBase _snow_light = null;
+    [SerializeField] TileBase _mountain_odd = null;
+    [SerializeField] TileBase _mountain_even = null;
+    //[SerializeField] TileBase _mountain_bottom_even = null;
+    //[SerializeField] TileBase _mountain_bottom_odd = null;
     [SerializeField] TileBase _water = null;
     [SerializeField] TileBase _water_deep = null;
     [SerializeField] TileBase _stream_slow = null;
@@ -59,6 +64,7 @@ public class TileStatsRenderer : MonoBehaviour
     [SerializeField] float _hotThreshold = 0.7f;
     [SerializeField] float _thresholdTolerance = 0.1f;
     [SerializeField] float _deepwaterThreshold = 0.15f;
+    [SerializeField] float _mountainThreshold = 0.7f;
     public float DeepwaterThreshold => _deepwaterThreshold;
     [SerializeField] float _waterThreshold = 0.3f;
     public float WaterThreshold => _waterThreshold;
@@ -94,6 +100,41 @@ public class TileStatsRenderer : MonoBehaviour
             {
 
                 RenderSingleCellByCoord(x,y);
+            }
+        }
+    }
+
+    
+    public void RenderAllMountains()
+    {
+        for (int x = 0; x < TileStatsHolder.Instance.Dimension; x++)
+        {
+            for (int y = 0; y < TileStatsHolder.Instance.Dimension; y++)
+            {
+                if (TileStatsHolder.Instance.GetWaterVolumeAtCoord(x, y) > 0) continue;
+                if (TileStatsHolder.Instance.GetElevationAtCoord(x,y) > _mountainThreshold)
+                {
+                    Vector3Int np = new Vector3Int(x, y, 0);
+                    if ((x+y) % 2 == 0)
+                    {
+                        _tilemap_mountains.SetTile(np, _mountain_even);
+                        _tilemap_mountains.SetTile(np + _east, _mountain_odd);
+                        _tilemap_mountains.SetTile(np + _north, _mountain_odd);
+                        _tilemap_mountains.SetTile(np + _north + _east, _mountain_even);
+
+                    }
+                    //else
+                    //{
+                    //    _tilemap_mountains.SetTile(np, _mountain_odd);
+                    //    _tilemap_mountains.SetTile(np + _east, _mountain_even);
+                    //    _tilemap_mountains.SetTile(np + _north, _mountain_even);
+                    //    _tilemap_mountains.SetTile(np + _north + _east, _mountain_odd);
+                    //}
+
+
+
+
+                }
             }
         }
     }
@@ -298,7 +339,7 @@ public class TileStatsRenderer : MonoBehaviour
         _tilemap_swamp_light.ClearAllTiles();
         _tilemap_snow.ClearAllTiles();
         _tilemap_snow_light.ClearAllTiles();
-
+        _tilemap_mountains.ClearAllTiles();
         _tilemap_water.ClearAllTiles();
 
     }
