@@ -108,20 +108,25 @@ public class TileStatsRenderer : MonoBehaviour
     
     public void RenderAllMountains()
     {
-        for (int x = 1; x < TileStatsHolder.Instance.Dimension-1; x++)
+        StartCoroutine(nameof(RenderMountains));
+    }
+
+    IEnumerator RenderMountains()
+    {
+        for (int x = 1; x < TileStatsHolder.Instance.Dimension - 1; x++)
         {
-            for (int y = 1; y < TileStatsHolder.Instance.Dimension-1; y++)
+            for (int y = 1; y < TileStatsHolder.Instance.Dimension - 1; y++)
             {
                 if (TileStatsHolder.Instance.GetWaterVolumeAtCoord(x, y) > 0) continue;
-                if (TileStatsHolder.Instance.GetElevationAtCoord(x,y) > _mountainThreshold)
+                if (TileStatsHolder.Instance.GetElevationAtCoord(x, y) > _mountainThreshold)
                 {
                     Vector3Int np = new Vector3Int(x, y, 0);
-                    if ((x+y) % 2 == 0 )
+                    if ((x + y) % 2 == 0)
                     {
                         if (_tilemap_water.HasTile(np)) continue;
 
                         if (_tilemap_water.HasTile(np + _north) ||
-                            _tilemap_water.HasTile(np +_east) ||
+                            _tilemap_water.HasTile(np + _east) ||
                             _tilemap_water.HasTile(np + _south) ||
                             _tilemap_water.HasTile(np + _west))
                         {
@@ -134,11 +139,12 @@ public class TileStatsRenderer : MonoBehaviour
                             _tilemap_mountains.SetTile(np + _north, _mountain_odd);
                             _tilemap_mountains.SetTile(np + _north + _east, _mountain_even);
                         }
-                        
+                        yield return new WaitForEndOfFrame();
                     }
                 }
             }
         }
+        
     }
 
 
