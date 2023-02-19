@@ -1388,8 +1388,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 517811937}
-        m_TargetAssemblyTypeName: TileStatsRenderer, Assembly-CSharp
+      - m_Target: {fileID: 517811942}
+        m_TargetAssemblyTypeName: MountainRenderer, Assembly-CSharp
         m_MethodName: RenderAllMountains
         m_Mode: 1
         m_Arguments:
@@ -2121,6 +2121,7 @@ GameObject:
   - component: {fileID: 517811939}
   - component: {fileID: 517811941}
   - component: {fileID: 517811940}
+  - component: {fileID: 517811942}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -2191,7 +2192,6 @@ MonoBehaviour:
   _tilemap_swamp_light: {fileID: 147417062}
   _tilemap_snow: {fileID: 411386649}
   _tilemap_snow_light: {fileID: 1411202536}
-  _tilemap_mountains: {fileID: 1849289709}
   _tilemap_water: {fileID: 1575906247}
   _tilemap_population_light: {fileID: 407365226}
   _tilemap_population_heavy: {fileID: 1939518475}
@@ -2205,9 +2205,6 @@ MonoBehaviour:
   _swamp_light: {fileID: 11400000, guid: ee7560cd9a2c481418a1996f131d4ff6, type: 2}
   _snow: {fileID: 11400000, guid: 177730a0a9682e74bbf750e568a342a6, type: 2}
   _snow_light: {fileID: 11400000, guid: 9e81229c8a0a3cf41a6c082c7e7f26fd, type: 2}
-  _mountain_odd: {fileID: 11400000, guid: c1ed47f87e88d774386643cfed4227bf, type: 2}
-  _mountain_even: {fileID: 11400000, guid: 925c297ecc3d42e4081eaa5a2a3d6adf, type: 2}
-  _mountain_solitairy: {fileID: 11400000, guid: ad368348af05eb646b57eb408cf7816d, type: 2}
   _water: {fileID: 11400000, guid: ac446326b45e8954a8bbcd4ff846ef97, type: 2}
   _water_deep: {fileID: 11400000, guid: fc4667b65ef7f2c4086fc9b082d5bc90, type: 2}
   _stream_slow: {fileID: 11400000, guid: 396d07cd124817b4ea1f21c50136ee29, type: 2}
@@ -2237,6 +2234,7 @@ MonoBehaviour:
   _wetThreshold: 0.7
   _coldThreshold: 0.3
   _hotThreshold: 0.7
+  _hillThreshold: 0.5
   _mountainThreshold: 0.7
 --- !u!114 &517811939
 MonoBehaviour:
@@ -2286,6 +2284,26 @@ MonoBehaviour:
   _waterGridSize: 25
   _soilSoakupFactor: 1
   _uphillTolerance: 0
+--- !u!114 &517811942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517811934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6426390eae353464a8e9969bfff23aa6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _mountain_odd: {fileID: 11400000, guid: c1ed47f87e88d774386643cfed4227bf, type: 2}
+  _mountain_even: {fileID: 11400000, guid: 925c297ecc3d42e4081eaa5a2a3d6adf, type: 2}
+  _mountain_solitairy: {fileID: 11400000, guid: ad368348af05eb646b57eb408cf7816d, type: 2}
+  _hill_grass: {fileID: 11400000, guid: c175b3124eeea974aa9f99b628d4a556, type: 2}
+  _hill_snow: {fileID: 11400000, guid: 17dde0ef47e33084eb27a789f705bb48, type: 2}
+  _hill_sand: {fileID: 11400000, guid: 99d3dcec894be144c86c4789ce76006c, type: 2}
+  _hill_pack: {fileID: 11400000, guid: 97cefc7bc069e0a41b54b22d28d65ef4, type: 2}
+  _tilemap_mountains: {fileID: 1849289709}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -2515,6 +2533,7 @@ GameObject:
   - component: {fileID: 620867429}
   - component: {fileID: 620867430}
   - component: {fileID: 620867427}
+  - component: {fileID: 620867431}
   m_Layer: 0
   m_Name: Controller
   m_TagString: Untagged
@@ -2600,6 +2619,19 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!114 &620867431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 620867426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b897ea35947d714a9192f3e0e40a6bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _moveSpeed: 25
 --- !u!1 &648796038
 GameObject:
   m_ObjectHideFlags: 0

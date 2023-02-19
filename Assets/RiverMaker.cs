@@ -94,36 +94,36 @@ public class RiverMaker : MonoBehaviour
         Vector2Int[] neighbors = TileStatsHolder.Instance.FindNeighborCoordsWithGreatestElevationIncrease(
             currentRiverLocation.x, currentRiverLocation.y);
 
-        if (volume > .8f * _startingVolume)
-        {
-            //Create fat river, and reduce elevation here to below water.
-            float waterlevel = TileStatsRenderer.Instance.WaterThreshold;
-            TileStatsHolder.Instance.SetElevationAtTile(
-                currentRiverLocation.x, currentRiverLocation.y,
-                waterlevel);
-            Vector3Int newloc = new Vector3Int(neighbors[0].x, neighbors[0].y, 0);
-            TileStatsRenderer.Instance.RenderRiverTile(newloc);
-        }
-        else
-        {
-            //create stream
-            TileStatsHolder.Instance.ModifyWaterStatusAtTile(
-            neighbors[0].x, neighbors[0].y, .1f, true);
+        //if (volume > .8f * _startingVolume)
+        //{
+        //    //Create fat river, and reduce elevation here to below water.
+        //    float waterlevel = TileStatsRenderer.Instance.WaterThreshold;
+        //    TileStatsHolder.Instance.SetElevationAtTile(
+        //        currentRiverLocation.x, currentRiverLocation.y,
+        //        waterlevel);
+        //    Vector3Int newloc = new Vector3Int(neighbors[0].x, neighbors[0].y, 0);
+        //    TileStatsRenderer.Instance.RenderRiverTile(newloc);
+        //}
+        //else
+        //{
+        //    //create stream
+        //    TileStatsHolder.Instance.ModifyWaterStatusAtTile(
+        //    neighbors[0].x, neighbors[0].y, .1f, true);
 
-            Vector3Int newloc = new Vector3Int(neighbors[0].x, neighbors[0].y, 0);
-            TileStatsRenderer.Instance.RenderStreamTile(newloc);
+        //    Vector3Int newloc = new Vector3Int(neighbors[0].x, neighbors[0].y, 0);
+        //    TileStatsRenderer.Instance.RenderStreamTile(newloc);
 
-            float forkRoll = (float)rnd.NextDouble();
-            if (forkRoll <= _forkChance)
-            {
-                //Debug.Log("stream forking!");
+        //    float forkRoll = (float)rnd.NextDouble();
+        //    if (forkRoll <= _forkChance)
+        //    {
+        //        //Debug.Log("stream forking!");
 
-                float volumeModifier = Mathf.Lerp(.3f, .9f, (float)rnd.NextDouble());
-                IEnumerator forkCR = CreateForkedStream(
-                    currentRiverLocation, volume * volumeModifier);
-                StartCoroutine(forkCR);
-            }
-        }
+        //        float volumeModifier = Mathf.Lerp(.3f, .9f, (float)rnd.NextDouble());
+        //        IEnumerator forkCR = CreateForkedStream(
+        //            currentRiverLocation, volume * volumeModifier);
+        //        StartCoroutine(forkCR);
+        //    }
+        //}
 
         return neighbors[0];
     }

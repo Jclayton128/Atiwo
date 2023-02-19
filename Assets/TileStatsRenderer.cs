@@ -23,7 +23,7 @@ public class TileStatsRenderer : MonoBehaviour
     [SerializeField] Tilemap _tilemap_swamp_light = null;
     [SerializeField] Tilemap _tilemap_snow = null;
     [SerializeField] Tilemap _tilemap_snow_light = null;
-    [SerializeField] Tilemap _tilemap_mountains = null;
+    //[SerializeField] Tilemap _tilemap_mountains = null;
     [SerializeField] Tilemap _tilemap_water = null;
 
     [SerializeField] Tilemap _tilemap_population_light = null;
@@ -42,24 +42,18 @@ public class TileStatsRenderer : MonoBehaviour
     [SerializeField] TileBase _swamp_light = null;
     [SerializeField] TileBase _snow = null;
     [SerializeField] TileBase _snow_light = null;
-    [SerializeField] TileBase _mountain_odd = null;
-    [SerializeField] TileBase _mountain_even = null;
-    [SerializeField] TileBase _mountain_solitairy = null;
+    //[SerializeField] TileBase _mountain_odd = null;
+    //[SerializeField] TileBase _mountain_even = null;
+    //[SerializeField] TileBase _mountain_solitairy = null;
     //[SerializeField] TileBase _mountain_bottom_even = null;
     //[SerializeField] TileBase _mountain_bottom_odd = null;
     [SerializeField] TileBase _water = null;
     [SerializeField] TileBase _water_deep = null;
-    [SerializeField] TileBase _stream_slow = null;
-
-
-    
+    [SerializeField] TileBase _stream_slow = null;    
 
     [SerializeField] float _thresholdTolerance = 0.1f;
     [SerializeField] float _deepwaterThreshold = 0.15f;
-
-    public float DeepwaterThreshold => _deepwaterThreshold;
     [SerializeField] float _waterThreshold = 0.3f;
-    public float WaterThreshold => _waterThreshold;
 
     [Header("Population Tile Examples")]
     [SerializeField] TileBase _pavers_middle = null;
@@ -98,48 +92,6 @@ public class TileStatsRenderer : MonoBehaviour
     }
 
     
-    public void RenderAllMountains()
-    {
-        StartCoroutine(nameof(RenderMountains));
-    }
-
-    IEnumerator RenderMountains()
-    {
-        for (int x = 1; x < TileStatsHolder.Instance.Dimension - 1; x++)
-        {
-            for (int y = 1; y < TileStatsHolder.Instance.Dimension - 1; y++)
-            {
-                if (TileStatsHolder.Instance.CheckIfWaterShouldBePresentAtCoord(x,y)) continue;
-                if (TileStatsHolder.Instance.CheckIfMountainShouldBePresentAtCoord(x,y))
-                {
-                    Vector3Int np = new Vector3Int(x, y, 0);
-                    if ((x + y) % 2 == 0)
-                    {
-                        if (_tilemap_water.HasTile(np)) continue;
-
-                        if (_tilemap_water.HasTile(np + _north) ||
-                            _tilemap_water.HasTile(np + _east) ||
-                            _tilemap_water.HasTile(np + _south) ||
-                            _tilemap_water.HasTile(np + _west))
-                        {
-                            if (!_tilemap_mountains.HasTile(np)) _tilemap_mountains.SetTile(np, _mountain_solitairy);
-                        }
-                        else
-                        {
-                            _tilemap_mountains.SetTile(np, _mountain_even);
-                            _tilemap_mountains.SetTile(np + _east, _mountain_odd);
-                            _tilemap_mountains.SetTile(np + _north, _mountain_odd);
-                            _tilemap_mountains.SetTile(np + _north + _east, _mountain_even);
-                            TileStatsHolder.Instance.SetElevationAtTileToMountainValue(np.x, np.y);
-                            TileStatsHolder.Instance.SetElevationAtTileToMountainValue(np.x+1, np.y);
-                        }
-                        yield return new WaitForEndOfFrame();
-                    }
-                }
-            }
-        }
-        
-    }
 
 
     public void RenderSingleCellByCoord(int xCoord, int yCoord)
@@ -328,8 +280,9 @@ public class TileStatsRenderer : MonoBehaviour
         _tilemap_swamp_light.ClearAllTiles();
         _tilemap_snow.ClearAllTiles();
         _tilemap_snow_light.ClearAllTiles();
-        _tilemap_mountains.ClearAllTiles();
+        MountainRenderer.Instance.ClearMountainTilemap();
         _tilemap_water.ClearAllTiles();
+        TreeRenderer.Instance.ClearVegetationTilemap();
 
     }
 

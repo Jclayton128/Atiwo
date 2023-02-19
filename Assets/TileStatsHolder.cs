@@ -33,6 +33,7 @@ public class TileStatsHolder : MonoBehaviour
     [SerializeField] float _wetThreshold = 0.7f;
     [SerializeField] float _coldThreshold = 0.3f;
     [SerializeField] float _hotThreshold = 0.7f;
+    [SerializeField] float _hillThreshold = 0.5f;
     [SerializeField] float _mountainThreshold = 0.7f;
     //state
     public int Dimension => _tileDimension;
@@ -97,10 +98,12 @@ public class TileStatsHolder : MonoBehaviour
                 _vegetationMap[x, y] = 0;
                 _populationMap[x, y] = 0;
                 _waterMap[x, y] = 0;
-                _biomeMap[x, y] = BiomeCategory.Unassigned;
+                _biomeMap[x, y] = BiomeCategory.MidtempMidwet;
             }
         }
     }
+
+
 
     #region Modify Data Maps at Coords
     public void ModifyTemperatureAtTile(int xCoord, int yCoord, float temperatureChange)
@@ -138,7 +141,7 @@ public class TileStatsHolder : MonoBehaviour
 
     public void SetElevationAtTileToMountainValue(int xCoord, int yCoord)
     {
-        _elevationMap[xCoord, yCoord] = _mountainThreshold + 0.001f;
+        _elevationMap[xCoord, yCoord] = _mountainThreshold;
     }
     public void SetElevationAtTile(int xCoord, int yCoord, float elevation)
     {
@@ -157,33 +160,33 @@ public class TileStatsHolder : MonoBehaviour
 
     internal void EnforceDeepWaterWithWaterAsNeighbor(int xCoord, int yCoord)
     {
-        if (xCoord + 1 < _tileDimension)
-        {
-            _elevationMap[xCoord + 1, yCoord] = Mathf.Clamp(
-                _elevationMap[xCoord + 1, yCoord],
-                0, TileStatsRenderer.Instance.WaterThreshold);
-        }
+        //if (xCoord + 1 < _tileDimension)
+        //{
+        //    _elevationMap[xCoord + 1, yCoord] = Mathf.Clamp(
+        //        _elevationMap[xCoord + 1, yCoord],
+        //        0, TileStatsRenderer.Instance.WaterThreshold);
+        //}
 
-        if (xCoord - 1 >= 0)
-        {
-            _elevationMap[xCoord - 1, yCoord] = Mathf.Clamp(
-                _elevationMap[xCoord - 1, yCoord],
-                0, TileStatsRenderer.Instance.WaterThreshold);
-        }
+        //if (xCoord - 1 >= 0)
+        //{
+        //    _elevationMap[xCoord - 1, yCoord] = Mathf.Clamp(
+        //        _elevationMap[xCoord - 1, yCoord],
+        //        0, TileStatsRenderer.Instance.WaterThreshold);
+        //}
 
-        if (yCoord + 1 < _tileDimension)
-        {
-            _elevationMap[xCoord, yCoord + 1] = Mathf.Clamp(
-                _elevationMap[xCoord, yCoord + 1],
-                0, TileStatsRenderer.Instance.WaterThreshold);
-        }
+        //if (yCoord + 1 < _tileDimension)
+        //{
+        //    _elevationMap[xCoord, yCoord + 1] = Mathf.Clamp(
+        //        _elevationMap[xCoord, yCoord + 1],
+        //        0, TileStatsRenderer.Instance.WaterThreshold);
+        //}
 
-        if (yCoord - 1 >= 0)
-        {
-            _elevationMap[xCoord, yCoord - 1] = Mathf.Clamp(
-                _elevationMap[xCoord, yCoord - 1],
-                0, TileStatsRenderer.Instance.WaterThreshold);
-        }
+        //if (yCoord - 1 >= 0)
+        //{
+        //    _elevationMap[xCoord, yCoord - 1] = Mathf.Clamp(
+        //        _elevationMap[xCoord, yCoord - 1],
+        //        0, TileStatsRenderer.Instance.WaterThreshold);
+        //}
 
         //if (_elevationMap.ContainsKey(coords + _south))
         //{
@@ -360,23 +363,41 @@ public class TileStatsHolder : MonoBehaviour
         if (_elevationMap[xCoord, yCoord] >= _mountainThreshold) return true;
         else return false;
     }
+    internal bool CheckIfHillShouldBePresentAtCoord(int x, int y, out BiomeCategory biomeCategory)
+    {
+        if (_elevationMap[x, y] >= _hillThreshold &&
+            _elevationMap[x, y] < _mountainThreshold)
+        {
+            biomeCategory = _biomeMap[x, y];
+            return true;
+        }
+        else
+        {
+            biomeCategory = BiomeCategory.Unassigned;
+            return false;
+        }
+
+    }
     #endregion
 
     #region Finds
     public Vector2Int FindRandomBeachCoord()
     {
-        float targetValue = TileStatsRenderer.Instance.WaterThreshold;
-        int row;
-        int col;
-        if (!GridSearch.SpiralSearch_ClosestToMinValue(_elevationMap, targetValue, 0.03f,
-            out row, out col))
-        {
-            GridSearch.SpiralSearch_ClosestToMinValue(_elevationMap, targetValue, 0.09f,
-            out row, out col);
-        }
+        //float targetValue = TileStatsRenderer.Instance.WaterThreshold;
+        //int row;
+        //int col;
+        //if (!GridSearch.SpiralSearch_ClosestToMinValue(_elevationMap, targetValue, 0.03f,
+        //    out row, out col))
+        //{
+        //    GridSearch.SpiralSearch_ClosestToMinValue(_elevationMap, targetValue, 0.09f,
+        //    out row, out col);
+        //}
 
-        Debug.Log($"found a central water spot at {col},{row}");
-        return new Vector2Int(col, row); //col = x coord, row = y coord
+        //Debug.Log($"found a central water spot at {col},{row}");
+        //return new Vector2Int(col, row); //col = x coord, row = y coord
+
+        Debug.LogError("commented out");
+        return Vector2Int.zero;
     }
 
     /// <summary>

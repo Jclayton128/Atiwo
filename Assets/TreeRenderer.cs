@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 
 public class TreeRenderer : MonoBehaviour
 {
+    public static TreeRenderer Instance;
     TileStatsHolder _tsh;
     System.Random _rnd;
 
@@ -26,10 +27,19 @@ public class TreeRenderer : MonoBehaviour
     // for (midtemp, wet) (hot, wet)
     [SerializeField] TileBase _tree_mangrove = null;
 
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
         _tsh = TileStatsHolder.Instance;        
+    }
+
+    public void ClearVegetationTilemap()
+    {
+        _tilemap_vegetation.ClearAllTiles();
     }
 
     public void RenderAllTrees()
