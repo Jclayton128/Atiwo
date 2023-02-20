@@ -365,10 +365,20 @@ public class TileStatsHolder : MonoBehaviour
     }
     internal bool CheckIfHillShouldBePresentAtCoord(int x, int y, out BiomeCategory biomeCategory)
     {
+        biomeCategory = _biomeMap[x, y];
+
+        //No hills allowed on transition tiles (where biome doesn't match neighbor biomes)
+        if (!CheckIfNeighborsAreSameBiomeCategory(x, y, biomeCategory))
+        {
+            return false;
+        }
+        if (_elevationMap[x, y+1] >= _mountainThreshold ||
+            _elevationMap[x +1, y] >= _mountainThreshold ||
+            _elevationMap[x, y-1] >= _mountainThreshold ||
+            _elevationMap[x - 1, y] >= _mountainThreshold) return false;
         if (_elevationMap[x, y] >= _hillThreshold &&
             _elevationMap[x, y] < _mountainThreshold)
         {
-            biomeCategory = _biomeMap[x, y];
             return true;
         }
         else
@@ -378,6 +388,19 @@ public class TileStatsHolder : MonoBehaviour
         }
 
     }
+    
+    private bool CheckIfNeighborsAreSameBiomeCategory(int x, int y, BiomeCategory testBiome)
+    {
+        if (y < _tileDimension &&
+            _biomeMap[x, y + 1] != testBiome) return false;
+        if (x < _tileDimension &&
+            _biomeMap[x+1, y] != testBiome) return false;
+        if (y > 0 && _biomeMap[x, y - 1] != testBiome) return false;
+        if (x > 0 && _biomeMap[x-1, y] != testBiome) return false;
+
+        return true;
+    }
+    
     #endregion
 
     #region Finds

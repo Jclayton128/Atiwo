@@ -1633,7 +1633,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &378593008
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2234,7 +2234,7 @@ MonoBehaviour:
   _wetThreshold: 0.7
   _coldThreshold: 0.3
   _hotThreshold: 0.7
-  _hillThreshold: 0.5
+  _hillThreshold: 0.65
   _mountainThreshold: 0.7
 --- !u!114 &517811939
 MonoBehaviour:
@@ -4991,7 +4991,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1875045684
 RectTransform:
   m_ObjectHideFlags: 0

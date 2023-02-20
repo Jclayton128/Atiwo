@@ -48,8 +48,8 @@ public class MountainRenderer : MonoBehaviour
             for (int y = 1; y < TileStatsHolder.Instance.Dimension - 1; y++)
             {
                 TileStatsHolder.BiomeCategory bc;
-                if (TileStatsHolder.Instance.CheckIfWaterShouldBePresentAtCoord(x, y)) continue;
-                else if (TileStatsHolder.Instance.CheckIfMountainShouldBePresentAtCoord(x, y))
+                if (_tsh.CheckIfWaterShouldBePresentAtCoord(x, y)) continue;
+                else if (_tsh.CheckIfMountainShouldBePresentAtCoord(x, y))
                 {
                     Vector3Int np = new Vector3Int(x, y, 0);
                     if ((x + y) % 2 == 0)
@@ -69,43 +69,46 @@ public class MountainRenderer : MonoBehaviour
                             _tilemap_mountains.SetTile(np + _east, _mountain_odd);
                             _tilemap_mountains.SetTile(np + _north, _mountain_odd);
                             _tilemap_mountains.SetTile(np + _north + _east, _mountain_even);
-                            TileStatsHolder.Instance.SetElevationAtTileToMountainValue(np.x, np.y);
-                            TileStatsHolder.Instance.SetElevationAtTileToMountainValue(np.x + 1, np.y);
+                            _tsh.SetElevationAtTileToMountainValue(np.x, np.y);
+                            _tsh.SetElevationAtTileToMountainValue(np.x + 1, np.y);
+
+                            //TileStatsHolder.Instance.SetElevationAtTileToMountainValue(np.x, np.y+1);
+                            //TileStatsHolder.Instance.SetElevationAtTileToMountainValue(np.x+1, np.y+1);
                         }
 
                     }
                 }
-                //else if (TileStatsHolder.Instance.CheckIfHillShouldBePresentAtCoord(x, y, out bc))
-                //{
-                //    Vector3Int np = new Vector3Int(x, y, 0);
-                //        switch (bc)
-                //    {
-                //        case TileStatsHolder.BiomeCategory.MidtempDry: //pack
-                //            _tilemap_mountains.SetTile(np, _hill_pack);
-                //            //if ((x + y) % 2 == 0) _tilemap_mountains.SetTile(np, _hill_pack_even);
-                //            //else _tilemap_mountains.SetTile(np, _hill_pack_odd);
-                //            break;
+                else if (TileStatsHolder.Instance.CheckIfHillShouldBePresentAtCoord(x, y, out bc))
+                {
+                    Vector3Int np = new Vector3Int(x, y, 0);
+                    switch (bc)
+                    {
+                        case TileStatsHolder.BiomeCategory.MidtempDry: //pack
+                            _tilemap_mountains.SetTile(np, _hill_pack);
+                            //if ((x + y) % 2 == 0) _tilemap_mountains.SetTile(np, _hill_pack_even);
+                            //else _tilemap_mountains.SetTile(np, _hill_pack_odd);
+                            break;
 
-                //        case TileStatsHolder.BiomeCategory.HotDry: //sand
-                //            _tilemap_mountains.SetTile(np, _hill_sand);
-                //            //if ((x + y) % 2 == 0) _tilemap_mountains.SetTile(np, _hill_sand_even);
-                //            //else _tilemap_mountains.SetTile(np, _hill_sand_odd);
-                //            break;
+                        case TileStatsHolder.BiomeCategory.HotDry: //sand
+                            _tilemap_mountains.SetTile(np, _hill_sand);
+                            //if ((x + y) % 2 == 0) _tilemap_mountains.SetTile(np, _hill_sand_even);
+                            //else _tilemap_mountains.SetTile(np, _hill_sand_odd);
+                            break;
 
-                //        case TileStatsHolder.BiomeCategory.MidtempMidwet: //grass
-                //            _tilemap_mountains.SetTile(np, _hill_grass);
-                //            //if ((x + y) % 2 == 0) _tilemap_mountains.SetTile(np, _hill_grass_even);
-                //            //else _tilemap_mountains.SetTile(np, _hill_grass_odd);
-                //            break;
+                        case TileStatsHolder.BiomeCategory.MidtempMidwet: //grass
+                            _tilemap_mountains.SetTile(np, _hill_grass);
+                            //if ((x + y) % 2 == 0) _tilemap_mountains.SetTile(np, _hill_grass_even);
+                            //else _tilemap_mountains.SetTile(np, _hill_grass_odd);
+                            break;
 
-                //        case TileStatsHolder.BiomeCategory.ColdMidwet: //snow
-                //            _tilemap_mountains.SetTile(np, _hill_snow);
-                //            //if ((x + y) % 2 == 0) _tilemap_mountains.SetTile(np, _hill_snow_even);
-                //            //else _tilemap_mountains.SetTile(np, _hill_snow_odd);
-                //            break;
+                        case TileStatsHolder.BiomeCategory.ColdMidwet: //snow
+                            _tilemap_mountains.SetTile(np, _hill_snow);
+                            //if ((x + y) % 2 == 0) _tilemap_mountains.SetTile(np, _hill_snow_even);
+                            //else _tilemap_mountains.SetTile(np, _hill_snow_odd);
+                            break;
 
-                //    }
-                //}
+                    }
+                }
 
             }
             yield return new WaitForEndOfFrame();
