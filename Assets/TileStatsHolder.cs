@@ -43,7 +43,7 @@ public class TileStatsHolder : MonoBehaviour
     float[,] _elevationMap;
     float[,] _trafficMap;
     float[,] _vegetationMap;
-    float[,] _populationMap;
+    float[,] _habitabilityMap;
     float[,] _waterMap;
     BiomeCategory[,] _biomeMap;
 
@@ -61,7 +61,7 @@ public class TileStatsHolder : MonoBehaviour
         _elevationMap = new float[_tileDimension, _tileDimension];
         _trafficMap = new float[_tileDimension, _tileDimension];
         _vegetationMap = new float[_tileDimension, _tileDimension];
-        _populationMap = new float[_tileDimension, _tileDimension];
+        _habitabilityMap = new float[_tileDimension, _tileDimension];
         _waterMap = new float[_tileDimension, _tileDimension];
         _biomeMap = new BiomeCategory[_tileDimension, _tileDimension];
         _grid = GetComponent<Grid>();
@@ -79,7 +79,7 @@ public class TileStatsHolder : MonoBehaviour
         Array.Clear(_elevationMap, 0, _tileDimension);
         Array.Clear(_trafficMap, 0, _tileDimension);
         Array.Clear(_vegetationMap, 0, _tileDimension);
-        Array.Clear(_populationMap, 0, _tileDimension);
+        Array.Clear(_habitabilityMap, 0, _tileDimension);
         Array.Clear(_waterMap, 0, _tileDimension);
         Array.Clear(_biomeMap, 0, _tileDimension);
 
@@ -96,7 +96,7 @@ public class TileStatsHolder : MonoBehaviour
 
                 _trafficMap[x, y] = 0;
                 _vegetationMap[x, y] = 0;
-                _populationMap[x, y] = 0;
+                _habitabilityMap[x, y] = 0;
                 _waterMap[x, y] = 0;
                 _biomeMap[x, y] = BiomeCategory.MidtempMidwet;
             }
@@ -148,9 +148,15 @@ public class TileStatsHolder : MonoBehaviour
         _elevationMap[xCoord, yCoord] = elevation;
     }
 
+    public void SetPopulationAtTile(int xCoord, int yCoord, float newPopulation)
+    {
+        _habitabilityMap[xCoord, yCoord] = newPopulation;
+    }
+
+
     public void ModifyPopulationAtTile(int xCoord, int yCoord, float populationChange)
     {
-        _populationMap[xCoord, yCoord] += populationChange;
+        _habitabilityMap[xCoord, yCoord] += populationChange;
     }
 
     public void ModifyTrafficAtTile(int xCoord, int yCoord, float trafficChange)
@@ -283,7 +289,7 @@ public class TileStatsHolder : MonoBehaviour
         td.Temperature = _temperatureMap[xCoord, yCoord];
         td.Moisture = _moistureMap[xCoord, yCoord];
         td.Elevation = _elevationMap[xCoord, yCoord];
-        td.Population = _populationMap[xCoord, yCoord];
+        td.Population = _habitabilityMap[xCoord, yCoord];
         td.Traffic = _trafficMap[xCoord, yCoord];
         td.Vegetation = _vegetationMap[xCoord, yCoord];
 
@@ -320,7 +326,7 @@ public class TileStatsHolder : MonoBehaviour
     {
         int orthoCount = 4;
         (Vector2Int, float)[] nce = new (Vector2Int, float)[orthoCount];
-        Vector2Int[] nays = GridSearch.GetNeighboringCellCoordinates(
+        Vector2Int[] nays = GridUtilities.GetNeighboringCellCoordinates(
             _elevationMap, sourceCoord);
 
         for (int i = 0; i < orthoCount; i++)
@@ -352,6 +358,11 @@ public class TileStatsHolder : MonoBehaviour
         return _vegetationMap[xCoord, yCoord];
     }
 
+    public float GetHabitabilityAtCoord(int x, int y)
+    {
+        return _habitabilityMap[x, y];
+    }
+
     public bool CheckIfWaterShouldBePresentAtCoord(int xCoord, int yCoord)
     {
         if (_waterMap[xCoord, yCoord] > 0) return true;
@@ -360,6 +371,9 @@ public class TileStatsHolder : MonoBehaviour
 
     public bool CheckIfMountainShouldBePresentAtCoord(int xCoord, int yCoord)
     {
+        // no mountains allowed on water tiles
+        if (CheckIfWaterShouldBePresentAtCoord(xCoord,yCoord)) return false;
+
         if (_elevationMap[xCoord, yCoord] >= _mountainThreshold) return true;
         else return false;
     }
@@ -367,15 +381,19 @@ public class TileStatsHolder : MonoBehaviour
     {
         biomeCategory = _biomeMap[x, y];
 
+        // no hills allowed on water tiles
+        if (CheckIfWaterShouldBePresentAtCoord(x, y)) return false;
+
         //No hills allowed on transition tiles (where biome doesn't match neighbor biomes)
         if (!CheckIfNeighborsAreSameBiomeCategory(x, y, biomeCategory))
         {
             return false;
         }
-        if (_elevationMap[x, y+1] >= _mountainThreshold ||
-            _elevationMap[x +1, y] >= _mountainThreshold ||
-            _elevationMap[x, y-1] >= _mountainThreshold ||
-            _elevationMap[x - 1, y] >= _mountainThreshold) return false;
+
+        //if (_elevationMap[x, y+1] >= _mountainThreshold ||
+        //    _elevationMap[x +1, y] >= _mountainThreshold ||
+        //    _elevationMap[x, y-1] >= _mountainThreshold ||
+        //    _elevationMap[x - 1, y] >= _mountainThreshold) return false;
         if (_elevationMap[x, y] >= _hillThreshold &&
             _elevationMap[x, y] < _mountainThreshold)
         {
@@ -389,11 +407,11 @@ public class TileStatsHolder : MonoBehaviour
 
     }
     
-    private bool CheckIfNeighborsAreSameBiomeCategory(int x, int y, BiomeCategory testBiome)
+    public bool CheckIfNeighborsAreSameBiomeCategory(int x, int y, BiomeCategory testBiome)
     {
-        if (y < _tileDimension &&
+        if (y+1 < _tileDimension &&
             _biomeMap[x, y + 1] != testBiome) return false;
-        if (x < _tileDimension &&
+        if (x+1 < _tileDimension &&
             _biomeMap[x+1, y] != testBiome) return false;
         if (y > 0 && _biomeMap[x, y - 1] != testBiome) return false;
         if (x > 0 && _biomeMap[x-1, y] != testBiome) return false;
@@ -634,34 +652,125 @@ public class TileStatsHolder : MonoBehaviour
         return lowestNeighbor;
     }
 
-
-    internal Vector2Int FindHighestCellWithinWaterGrid(Vector2Int origin, Vector2Int farCorner)
+    internal Vector2Int FindHighestElevationCellWithinGrid(Vector2Int origin, Vector2Int farCorner)
     {
         int xWidth = farCorner.x - origin.x + 1;
         int yHeight = farCorner.y - origin.y + 1;
 
         //Debug.Log($"Passing array of size {xWidth},{yHeight}");
-        float[,] arr = GridSearch.ExtractSubArray(_elevationMap,
+        float[,] arr = GridUtilities.ExtractSubArray(_elevationMap,
             origin.x, origin.y, xWidth, yHeight);
 
-        return origin + GridSearch.FindCellWithHighestValue(arr);
+        return origin + GridUtilities.FindCellWithHighestValue(arr);
     }
-
 
     internal float FindTotalMoistureWithinWaterGrid(Vector2Int origin, Vector2Int farCorner)
     {
         int xWidth = farCorner.x - origin.x;
         int yHeight = farCorner.y - origin.y;
-        float[,] arr = GridSearch.ExtractSubArray(_moistureMap,
+        float[,] arr = GridUtilities.ExtractSubArray(_moistureMap,
             origin.x, origin.y, xWidth, yHeight);
-        return GridSearch.FindSumValueWithinGrid(arr);
+        return GridUtilities.FindSumValueWithinGrid(arr);
+    }
+
+    internal Vector2Int FindLeastPopulatedCellsWithinGrid(Vector2Int origin, Vector2Int farCorner)
+    {
+        int xWidth = farCorner.x - origin.x + 1;
+        int yHeight = farCorner.y - origin.y + 1;
+
+        //Debug.Log($"Passing array of size {xWidth},{yHeight}");
+        float[,] arr = GridUtilities.ExtractSubArray(_habitabilityMap,
+            origin.x, origin.y, xWidth, yHeight);
+
+        return origin + GridUtilities.FindCellWithLowestValue(arr);
+    }
+
+    internal float FindTotalPopulationWithinPopulationGrid(Vector2Int origin, Vector2Int farCorner)
+    {
+        int xWidth = farCorner.x - origin.x;
+        int yHeight = farCorner.y - origin.y;
+        float[,] arr = GridUtilities.ExtractSubArray(_habitabilityMap,
+            origin.x, origin.y, xWidth, yHeight);
+        return GridUtilities.FindSumValueWithinGrid(arr);
+    }
+
+    public Vector2Int FindNeighborCellWithHigherPopulationValue(int xCoord, int yCoord)
+    {
+        Vector2Int highestNay = new Vector2Int(xCoord, yCoord);
+        float currentPop = _habitabilityMap[xCoord, yCoord];
+        float popToBeat = currentPop;
+
+        //north
+        if (yCoord + 1 < _tileDimension)
+        {
+            if (_habitabilityMap[xCoord, yCoord + 1] > popToBeat)
+            {
+                popToBeat = _habitabilityMap[xCoord, yCoord + 1];
+                highestNay = new Vector2Int(xCoord, yCoord) + _north;
+            }
+        }
+
+        //east
+        if (xCoord + 1 < _tileDimension)
+        {
+            if (_habitabilityMap[xCoord + 1, yCoord] > popToBeat)
+            {
+                popToBeat = _habitabilityMap[xCoord + 1, yCoord];
+                highestNay = new Vector2Int(xCoord, yCoord) + _east;
+            }
+        }
+
+        //south
+        if (yCoord - 1 > 0)
+        {
+            if (_habitabilityMap[xCoord, yCoord - 1] > popToBeat)
+            {
+                popToBeat = _habitabilityMap[xCoord, yCoord - 1];
+                highestNay = new Vector2Int(xCoord, yCoord) + _south;
+            }
+        }
+
+        //west
+        if (xCoord - 1 > 0)
+        {
+            if (_habitabilityMap[xCoord - 1, yCoord] > popToBeat)
+            {
+                popToBeat = _habitabilityMap[xCoord - 1, yCoord];
+                highestNay = new Vector2Int(xCoord, yCoord) + _west;
+            }
+        }
+        return highestNay;
+    }
+
+
+    public Vector2Int GetCoordinatesForPopulationArrayFromSpiralCoord(Vector2Int startCoord, int index)
+    {
+       return GridUtilities.GetSpiralCoordinateAtIndex(_habitabilityMap, startCoord, index);
+    }
+
+    public bool CheckIfCellIsHabitable(Vector2Int coord)
+    {
+        if (coord.x > _tileDimension || coord.y > _tileDimension ||
+            coord.x < 0 || coord.y < 0) return false;
+
+        if (TreeRenderer.Instance.CheckForTreesAtCoord(coord) ||
+            MountainRenderer.Instance.CheckForMountainsOrHillsAtCoord(coord) ||
+            WaterRenderer.Instance.CheckIfHasWaterTileAtCoord(coord))
+        {          
+            return false;
+        }
+
+        if (!CheckIfNeighborsAreSameBiomeCategory(coord.x, coord.y,
+            _biomeMap[coord.x, coord.y])) return false;
+
+        return true;
     }
 
     #endregion
 
-    #region Biome Categorization
+        #region Biome Categorization
 
-    public void CategorizeTileAtCoord(int xCoord, int yCoord)
+        public void CategorizeTileAtCoord(int xCoord, int yCoord)
     {
         float moisture = _moistureMap[xCoord, yCoord];
         float temp = _temperatureMap[xCoord,yCoord];

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class GridSearch
+public static class GridUtilities
 {
     static Vector2Int _north = new Vector2Int(0, 1);
     static Vector2Int _south = new Vector2Int(0, -1);
@@ -59,6 +59,92 @@ public static class GridSearch
         return false; // Target value not found
     }
 
+
+    public static Vector2Int GetSpiralCoordinateAtIndex(float[,] arr, Vector2Int startCoord, int index)
+    {
+        int m = arr.GetLength(0); // number of rows
+        int n = arr.GetLength(1); // number of columns
+
+        int row = startCoord.y;
+        int col = startCoord.x;
+        int direction = 0; // 0 = right, 1 = down, 2 = left, 3 = up
+        int steps = 1;
+        int stepCount = 0;
+
+        for (int i = 0; i < index; i++)
+        {
+            if (direction == 0)
+            { // right
+                if (stepCount < steps)
+                {
+                    col++;
+                    stepCount++;
+                }
+                else
+                {
+                    direction = 1; // go down
+                    stepCount = 0;
+                    //steps++;
+                    //row--;
+                }
+            }
+            else if (direction == 1)
+            { // down
+                if (stepCount < steps)
+                {
+                    row--;
+                    stepCount++;
+                }
+                else
+                {
+                    direction = 2; // go left
+                    stepCount = 0;
+                    steps++;
+                    //col--;
+                }
+            }
+            else if (direction == 2)
+            { // left
+                if (stepCount < steps)
+                {
+                    col--;
+                    stepCount++;
+                }
+                else
+                {
+                    direction = 3; // go up
+                    stepCount = 0;
+                    //steps++;
+                    //row++;
+                }
+            }
+            else if (direction == 3)
+            { // up
+                if (stepCount < steps)
+                {
+                    row++;
+                    stepCount++;
+                }
+                else
+                {
+                    direction = 0; // go right
+                    stepCount = 0;
+                    steps++;
+                    //col++;
+                }
+            }
+
+            // check if index is out of bounds
+            if (row < 0 || row >= m || col < 0 || col >= n)
+            {
+                Debug.Log("Invalid parameters");
+                return new Vector2Int(-1,-1);
+            }
+        }
+
+        return new Vector2Int(col, row);  
+    }
+
     public static Vector2Int FindCellWithHighestValue (float[,] arr)
     {
         // get the dimensions of the array
@@ -86,6 +172,35 @@ public static class GridSearch
             }
         }
         return maxCoord;
+    }
+
+    public static Vector2Int FindCellWithLowestValue(float[,] arr)
+    {
+        // get the dimensions of the array
+        int maxY = arr.GetLength(0);
+        int maxX = arr.GetLength(1);
+
+        // initialize variables to store the maximum value and its coordinates
+        float minValue = float.MaxValue;
+        Vector2Int minCoord = Vector2Int.zero;
+
+        // loop through each cell in the array
+        for (int y = 0; y < maxY; y++)
+        {
+            for (int x = 0; x < maxX; x++)
+            {
+                // if the current cell's value is greater than the current maximum value,
+                // update the maximum value and its coordinates
+                //Debug.Log($"X: {x}/{maxX}, Y: {y}/{maxY}");
+                if (arr[y, x] < minValue)
+                {
+                    minValue = arr[y, x];
+                    minCoord.x = x;
+                    minCoord.y = y;
+                }
+            }
+        }
+        return minCoord;
     }
 
     public static float FindSumValueWithinGrid(float[,] arr)
@@ -168,6 +283,24 @@ public static class GridSearch
         }
 
         return neighborCoords;
+    }
+}
+
+public class ParameterGrid
+{
+    public Vector2Int Origin;
+    public Vector2Int FarCorner;
+    public Vector2Int SignificantCoord;
+    public float TotalValue;
+
+    public ParameterGrid(Vector2Int origin, Vector2Int farCorner, Vector2Int highPoint, float volume)
+    {
+        //Debug.Log($"new WaterGrid start: {origin.x},{origin.y}. Extends: {farCorner.x}, {farCorner.y}. Volume: {volume} " +
+        //    $"High: {highPoint.x},{highPoint.y} ");
+        this.Origin = origin;
+        this.FarCorner = farCorner;
+        this.SignificantCoord = highPoint;
+        this.TotalValue = volume;
     }
 }
 

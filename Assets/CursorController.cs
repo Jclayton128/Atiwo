@@ -23,7 +23,7 @@ public class CursorController : MonoBehaviour
     {
         UpdateCursorInspection();
         UpdateCursorAdjustments_Debug();
-        UpdateCursorClick();
+        //UpdateCursorClick();
     }
 
     private void UpdateCursorClick()

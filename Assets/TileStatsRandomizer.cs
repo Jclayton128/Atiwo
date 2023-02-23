@@ -34,19 +34,27 @@ public class TileStatsRandomizer : MonoBehaviour
         float elevationOffset_2 = (float)rnd.NextDouble();
         //Debug.Log($"to: {tempOffset_1}. mo: {moistOffset_1}");
 
-        for (int x = 0; x < TileStatsHolder.Instance.Dimension; x++)
+        int size = TileStatsHolder.Instance.Dimension;
+        for (int x = 0; x < size; x++)
         {
-            for (int y = 0; y < TileStatsHolder.Instance.Dimension; y++)
+            for (int y = 0; y < size; y++)
             {
-                float temp =
-                    Mathf.Clamp01(Mathf.PerlinNoise(
-                        ((float)x /  _noiseScale_macro) + tempOffset_1,
-                        ((float)y /  _noiseScale_macro) + tempOffset_1));
+                float distFromMidY = Mathf.Abs(size/2f - y);
+                float temp = (.7f - distFromMidY/size);
 
+                //float temp =
+                //    Mathf.Clamp01(Mathf.PerlinNoise(
+                //        ((float)x /  _noiseScale_macro) + tempOffset_1,
+                //        ((float)y /  _noiseScale_macro) + tempOffset_1));
                 temp +=
                     Mathf.Lerp(-.3f, .3f, (Mathf.PerlinNoise(
-                        ((float)x /  _noiseScale_micro) + tempOffset_2,
-                        ((float)y / _noiseScale_micro) + tempOffset_2)));
+                        ((float)x / _noiseScale_macro) + tempOffset_1,
+                        ((float)y / _noiseScale_macro) + tempOffset_1)));
+
+                temp +=
+                    Mathf.Lerp(-.1f, .1f, (Mathf.PerlinNoise(
+                        ((float)x /  _noiseScale_micro) + tempOffset_1,
+                        ((float)y / _noiseScale_micro) + tempOffset_1)));
 
                 //temp = Mathf.Clamp01(temp);
 
@@ -82,6 +90,10 @@ public class TileStatsRandomizer : MonoBehaviour
                 TileStatsHolder.Instance.SetTemperatureAtTile(x,y, temp);
                 TileStatsHolder.Instance.SetMoistureAtTile(x,y, moisture);
                 TileStatsHolder.Instance.SetElevationAtTile(x,y, elevation);
+
+                //well, population != elevation...
+                TileStatsHolder.Instance.SetPopulationAtTile(x, y, elevation);
+
                 TileStatsHolder.Instance.CategorizeTileAtCoord(x, y);
                 //TileStatsRenderer.Instance.RenderSingleCellByCoord(x,y);
             }

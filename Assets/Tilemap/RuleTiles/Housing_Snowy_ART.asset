@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a5263f4462dfe44e9c1bed4ab09835a, type: 3}
+  m_Name: Housing_Snowy_ART
+  m_EditorClassIdentifier: 
+  m_DefaultSprite: {fileID: -7589059012119259250, guid: 57f9614bb1303bd40b8aba02e0694a56, type: 3}
+  m_DefaultColliderType: 1
+  RuleNames:
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  firstExists: 1
+  These: 0
+  DefaultNumOfThese: 0
+  TheseNumberOfTiles: 00000000000000
+  NotZero: 5
+  firstExists2: 1
+  NotThese: 0
+  DefaultNumOfNotThese: 0
+  NotTheseNumberOfTiles: 000000000000
+  t1: []
+  t2: []
+  t3: []
+  t4: []
+  t5: []
+  t6: []
+  t7: []
+  n1: []
+  n2: []
+  n3: []
+  n4: []
+  n5: []
+  n6: []
+  m_TilingRules:
+  - m_Neighbors: 0000000002000000000000000200000001000000000000000100000000000000
+    m_Sprites:
+    - {fileID: 0}
+    m_AnimationSpeed: 1
+    m_PerlinScale: 0.5
+    m_RuleTransform: 1
+    m_Output: 0
+    m_ColliderType: 1
+    m_RandomTransform: 0
+  - m_Neighbors: 0000000001000000000000000100000001000000000000000100000000000000
+    m_Sprites:
+    - {fileID: 3567120959827633367, guid: d1e80da4da2386747aefd855dda718a8, type: 3}
+    m_AnimationSpeed: 1
+    m_PerlinScale: 0.5
+    m_RuleTransform: 1
+    m_Output: 0
+    m_ColliderType: 1
+    m_RandomTransform: 0
+  - m_Neighbors: 0000000000000000000000000000000000000000000000000000000000000000
+    m_Sprites:
+    - {fileID: -7589059012119259250, guid: 57f9614bb1303bd40b8aba02e0694a56, type: 3}
+    - {fileID: 7317912366184612194, guid: 57f9614bb1303bd40b8aba02e0694a56, type: 3}
+    - {fileID: 4646857544137617176, guid: 57f9614bb1303bd40b8aba02e0694a56, type: 3}
+    - {fileID: -122984696513276192, guid: 57f9614bb1303bd40b8aba02e0694a56, type: 3}
+    - {fileID: 8205489368847761422, guid: 57f9614bb1303bd40b8aba02e0694a56, type: 3}
+    - {fileID: 7880880914902119045, guid: 57f9614bb1303bd40b8aba02e0694a56, type: 3}
+    - {fileID: 6150783214044304238, guid: 57f9614bb1303bd40b8aba02e0694a56, type: 3}
+    m_AnimationSpeed: 1
+    m_PerlinScale: 0.5
+    m_RuleTransform: 0
+    m_Output: 1
+    m_ColliderType: 1
+    m_RandomTransform: 0

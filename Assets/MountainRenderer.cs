@@ -19,7 +19,7 @@ public class MountainRenderer : MonoBehaviour
     [SerializeField] TileBase _hill_pack = null;
     [SerializeField] Tilemap _tilemap_mountains = null;
 
-    TileStatsHolder _tsh = TileStatsHolder.Instance;
+    TileStatsHolder _tsh;
 
     Vector3Int _north = new Vector3Int(0, 1, 0);
     Vector3Int _south = new Vector3Int(0, -1, 0);
@@ -29,6 +29,10 @@ public class MountainRenderer : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+    }
+    private void Start()
+    {
+        _tsh = TileStatsHolder.Instance;
     }
 
     public void ClearMountainTilemap()
@@ -81,6 +85,7 @@ public class MountainRenderer : MonoBehaviour
                 else if (TileStatsHolder.Instance.CheckIfHillShouldBePresentAtCoord(x, y, out bc))
                 {
                     Vector3Int np = new Vector3Int(x, y, 0);
+                    if (_tilemap_mountains.HasTile(np)) continue;
                     switch (bc)
                     {
                         case TileStatsHolder.BiomeCategory.MidtempDry: //pack
@@ -114,5 +119,10 @@ public class MountainRenderer : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
+    }
+
+    public bool CheckForMountainsOrHillsAtCoord(Vector2Int coord)
+    {
+        return _tilemap_mountains.HasTile((Vector3Int)coord);
     }
 }

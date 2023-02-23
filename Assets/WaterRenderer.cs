@@ -2,16 +2,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
-public class TileWaterMaker : MonoBehaviour
+public class WaterRenderer : MonoBehaviour
 {
-    public static TileWaterMaker Instance;
+    public static WaterRenderer Instance;
     private Action AllSpringsHaveCompleted;
 
-    List<WaterGrid> _waterGrids;
+    List<ParameterGrid> _waterGrids;
     List<WaterSpring> _springs;
     List<Lake> _lakes = new List<Lake>();
-
+    [SerializeField] Tilemap _tilemap_water = null;
+    [SerializeField] TileBase _stream = null;
+    [SerializeField] TileBase _water = null;
     System.Random rnd;
 
     //settings
@@ -25,6 +28,10 @@ public class TileWaterMaker : MonoBehaviour
     int _maxRiverLength = 100;
     int _maxLakeSize = 300;
     [SerializeField] float _uphillTolerance = 0.1f;
+    Vector3Int _north = new Vector3Int(0, 1, 0);
+    Vector3Int _south = new Vector3Int(0, -1, 0);
+    Vector3Int _east = new Vector3Int(1, 0, 0);
+    Vector3Int _west = new Vector3Int(-1, 0, 0);
 
     //state
     WaitForSeconds delay = new WaitForSeconds(.0625f);
@@ -65,9 +72,9 @@ public class TileWaterMaker : MonoBehaviour
     }
 
     #region Create Water Flow
-    private List<WaterGrid> CreateWaterGrids()
+    private List<ParameterGrid> CreateWaterGrids()
     {
-        List<WaterGrid> wglist = new List<WaterGrid>();
+        List<ParameterGrid> wglist = new List<ParameterGrid>();
 
         int size = TileStatsHolder.Instance.TilemapDimensions;
         Vector2Int origin = Vector2Int.zero;
@@ -98,9 +105,9 @@ public class TileWaterMaker : MonoBehaviour
                     farCorner.y = size - 1;
                 }
 
-                highPoint = TileStatsHolder.Instance.FindHighestCellWithinWaterGrid(origin, farCorner);
+                highPoint = TileStatsHolder.Instance.FindHighestElevationCellWithinGrid(origin, farCorner);
                 waterVolume = TileStatsHolder.Instance.FindTotalMoistureWithinWaterGrid(origin, farCorner);
-                WaterGrid wg = new WaterGrid(origin, farCorner, highPoint, waterVolume);
+                ParameterGrid wg = new ParameterGrid(origin, farCorner, highPoint, waterVolume);
                 wglist.Add(wg);
             }
         }
@@ -113,7 +120,7 @@ public class TileWaterMaker : MonoBehaviour
         List<WaterSpring> wslist = new List<WaterSpring>();
         foreach (var wg in _waterGrids)
         {
-            WaterSpring spring = new WaterSpring(wg.HighPoint, wg.WaterVolume);
+            WaterSpring spring = new WaterSpring(wg.SignificantCoord, wg.TotalValue);
             wslist.Add(spring);
         }
         return wslist;
@@ -335,7 +342,7 @@ public class TileWaterMaker : MonoBehaviour
             coord.x, coord.y, 0.01f, true);
 
         Vector3Int newloc = (Vector3Int)coord;
-        TileStatsRenderer.Instance.RenderStreamTile(newloc);
+        _tilemap_water.SetTile(newloc, _stream);
     }
 
     private void PlaceLakeTile(Vector2Int coord, float volume)
@@ -367,30 +374,77 @@ public class TileWaterMaker : MonoBehaviour
                 coord.x - 1, coord.y, 4f, false);
         }
 
-        TileStatsRenderer.Instance.RenderLakeTile((Vector3Int)coord);
+        SetLakeTile((Vector3Int)coord);
+    }
+    
+    public void SetLakeTile(Vector3Int coord)
+    {
+        //float volume = TileStatsHolder.Instance.
+        //    GetWaterVolumeAtCoord(coord.x, coord.y);
+        if (TileStatsHolder.Instance.CheckIfWaterShouldBePresentAtCoord(coord.x, coord.y))
+        {
+            _tilemap_water.SetTile(coord, _water);
+            _tilemap_water.SetTile(coord + _north, _water);
+            _tilemap_water.SetTile(coord + _south, _water);
+            _tilemap_water.SetTile(coord + _west, _water);
+            _tilemap_water.SetTile(coord + _east, _water);
+            _tilemap_water.SetTile(coord + _north + _east, _water);
+            _tilemap_water.SetTile(coord + _south + _east, _water);
+            _tilemap_water.SetTile(coord + _west + _north, _water);
+            _tilemap_water.SetTile(coord + _east + _north, _water);
+
+            //if (volume > _deepwaterThreshold)
+            //{
+            //    _tilemap_water.SetTile(coord, _water_deep);
+            //}
+            //else
+            //{
+            //    _tilemap_water.SetTile(coord, _water);
+            //}
+        }
+
+
+        //if (td.Elevation <= _deepwaterThreshold)
+        //{
+        //    _tilemap_water.SetTile(coord, _water_deep);
+        //    //return;
+        //}
+        //else if (td.Elevation <= _waterThreshold)
+        //{
+        //    switch (GetBeachCategory(coord.x, coord.y))
+        //    {
+        //        case BeachCategory.None:
+        //            _tilemap_water.SetTile(coord, _water);
+        //            break;
+
+        //        case BeachCategory.Brown:
+        //            _tilemap_water.SetTile(coord, _water);
+        //            break;
+
+        //        case BeachCategory.Sand:
+        //            _tilemap_water.SetTile(coord, _water);
+        //            break;
+        //    }
+
+
+        //    //return;
+        //}
+        //else
+        //{
+        //    _tilemap_water.SetTile(coord, null);
+        //}
     }
 
     #endregion
 
-}
 
-public class WaterGrid
-{
-    public Vector2Int Origin;
-    public Vector2Int FarCorner;
-    public Vector2Int HighPoint;
-    public float WaterVolume;
-
-    public WaterGrid(Vector2Int origin, Vector2Int farCorner, Vector2Int highPoint, float volume)
+    public bool CheckIfHasWaterTileAtCoord(Vector2Int coord)
     {
-        //Debug.Log($"new WaterGrid start: {origin.x},{origin.y}. Extends: {farCorner.x}, {farCorner.y}. Volume: {volume} " +
-        //    $"High: {highPoint.x},{highPoint.y} ");
-        this.Origin = origin;
-        this.FarCorner = farCorner;
-        this.HighPoint = highPoint;
-        this.WaterVolume = volume;
+        return _tilemap_water.HasTile((Vector3Int)coord);
     }
 }
+
+
 
 public class WaterSpring
 {

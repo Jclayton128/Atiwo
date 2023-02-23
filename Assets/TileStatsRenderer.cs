@@ -26,8 +26,8 @@ public class TileStatsRenderer : MonoBehaviour
     //[SerializeField] Tilemap _tilemap_mountains = null;
     [SerializeField] Tilemap _tilemap_water = null;
 
-    [SerializeField] Tilemap _tilemap_population_light = null;
-    [SerializeField] Tilemap _tilemap_population_heavy = null;
+    //[SerializeField] Tilemap _tilemap_population_light = null;
+    //[SerializeField] Tilemap _tilemap_population_heavy = null;
     [SerializeField] Tilemap _tilemap_traffic = null;
     //[SerializeField] Tilemap _tilemap_vegetation = null;
 
@@ -47,9 +47,9 @@ public class TileStatsRenderer : MonoBehaviour
     //[SerializeField] TileBase _mountain_solitairy = null;
     //[SerializeField] TileBase _mountain_bottom_even = null;
     //[SerializeField] TileBase _mountain_bottom_odd = null;
-    [SerializeField] TileBase _water = null;
-    [SerializeField] TileBase _water_deep = null;
-    [SerializeField] TileBase _stream_slow = null;    
+    //[SerializeField] TileBase _water = null;
+    //[SerializeField] TileBase _water_deep = null;
+    //[SerializeField] TileBase _stream_slow = null;    
 
     [SerializeField] float _thresholdTolerance = 0.1f;
     [SerializeField] float _deepwaterThreshold = 0.15f;
@@ -197,63 +197,7 @@ public class TileStatsRenderer : MonoBehaviour
 
     }
 
-    public void RenderLakeTile(Vector3Int coord)
-    {
-        //float volume = TileStatsHolder.Instance.
-        //    GetWaterVolumeAtCoord(coord.x, coord.y);
-        if (TileStatsHolder.Instance.CheckIfWaterShouldBePresentAtCoord(coord.x, coord.y))
-        {
-            _tilemap_water.SetTile(coord, _water);
-            _tilemap_water.SetTile(coord + _north, _water);
-            _tilemap_water.SetTile(coord + _south, _water);
-            _tilemap_water.SetTile(coord + _west, _water);
-            _tilemap_water.SetTile(coord + _east, _water);
-            _tilemap_water.SetTile(coord + _north + _east, _water);
-            _tilemap_water.SetTile(coord + _south + _east, _water);
-            _tilemap_water.SetTile(coord + _west + _north, _water);
-            _tilemap_water.SetTile(coord + _east + _north, _water);
-
-            //if (volume > _deepwaterThreshold)
-            //{
-            //    _tilemap_water.SetTile(coord, _water_deep);
-            //}
-            //else
-            //{
-            //    _tilemap_water.SetTile(coord, _water);
-            //}
-        }
-
-
-        //if (td.Elevation <= _deepwaterThreshold)
-        //{
-        //    _tilemap_water.SetTile(coord, _water_deep);
-        //    //return;
-        //}
-        //else if (td.Elevation <= _waterThreshold)
-        //{
-        //    switch (GetBeachCategory(coord.x, coord.y))
-        //    {
-        //        case BeachCategory.None:
-        //            _tilemap_water.SetTile(coord, _water);
-        //            break;
-
-        //        case BeachCategory.Brown:
-        //            _tilemap_water.SetTile(coord, _water);
-        //            break;
-
-        //        case BeachCategory.Sand:
-        //            _tilemap_water.SetTile(coord, _water);
-        //            break;
-        //    }
-
-
-        //    //return;
-        //}
-        //else
-        //{
-        //    _tilemap_water.SetTile(coord, null);
-        //}
-    }
+    
 
     //private BeachCategory GetBeachCategory(int xCoord, int yCoord)
     //{
@@ -299,39 +243,39 @@ public class TileStatsRenderer : MonoBehaviour
         _tilemap_snow_light.SetTile(coord, null);
     }
 
-    public void RenderRiverTile(Vector3Int coord)
-    {
-        _tilemap_water.SetTile(coord, _water);
-        _tilemap_water.SetTile(coord+_north, _water);
-        _tilemap_water.SetTile(coord + _south, _water);
-        _tilemap_water.SetTile(coord + _west, _water);
-        _tilemap_water.SetTile(coord+_east, _water);
-    }
+    //public void RenderRiverTile(Vector3Int coord)
+    //{
+    //    _tilemap_water.SetTile(coord, _water);
+    //    _tilemap_water.SetTile(coord+_north, _water);
+    //    _tilemap_water.SetTile(coord + _south, _water);
+    //    _tilemap_water.SetTile(coord + _west, _water);
+    //    _tilemap_water.SetTile(coord+_east, _water);
+    //}
 
     public void RenderStreamTile(Vector3Int coord)
     {
-        _tilemap_water.SetTile(coord, _stream_slow);
+ 
     }
 
-    private void RenderPopulationTile(Vector3Int coord, TileStats td)
-    {
-        if (td.Population > _denseThreshold)
-        {
-            _tilemap_population_heavy.SetTile(coord, _pavers_dense);
-            _tilemap_population_light.SetTile(coord, _pavers_middle);
-        }
-        else if (td.Population >= _sparseThreshold)
-        {
-            _tilemap_population_heavy.SetTile(coord, null);
-            _tilemap_population_light.SetTile(coord, _pavers_middle);
-        }
-        else
-        {
-            _tilemap_population_heavy.SetTile(coord, null);
-            _tilemap_population_light.SetTile(coord, null);
-        }
+    //private void RenderPopulationTile(Vector3Int coord, TileStats td)
+    //{
+    //    if (td.Population > _denseThreshold)
+    //    {
+    //        _tilemap_population_heavy.SetTile(coord, _pavers_dense);
+    //        _tilemap_population_light.SetTile(coord, _pavers_middle);
+    //    }
+    //    else if (td.Population >= _sparseThreshold)
+    //    {
+    //        _tilemap_population_heavy.SetTile(coord, null);
+    //        _tilemap_population_light.SetTile(coord, _pavers_middle);
+    //    }
+    //    else
+    //    {
+    //        _tilemap_population_heavy.SetTile(coord, null);
+    //        _tilemap_population_light.SetTile(coord, null);
+    //    }
 
-    }
+    //}
 
     private void RenderTrafficTile(Vector3Int coord, TileStats td)
     {

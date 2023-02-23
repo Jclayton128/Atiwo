@@ -54,8 +54,11 @@ public class TreeRenderer : MonoBehaviour
         {
             for (int y = 1; y < TileStatsHolder.Instance.Dimension - 1; y++)
             {
-                if (_tsh.CheckIfWaterShouldBePresentAtCoord(x,y)) continue;
-                if (_tsh.CheckIfMountainShouldBePresentAtCoord(x, y)) continue;
+                Vector2Int np = new Vector2Int(x, y);
+                if (WaterRenderer.Instance.CheckIfHasWaterTileAtCoord(np)) continue;
+                if (MountainRenderer.Instance.CheckForMountainsOrHillsAtCoord(np)) continue;
+                if (!_tsh.CheckIfNeighborsAreSameBiomeCategory(x, y,
+                    _tsh.GetBiomeCategoryAtCoord(x, y))) continue;
 
                 float chance = _tsh.GetVegetationChanceAtCoord(x, y);
                 if (_rnd.NextDouble() <= chance)
@@ -83,7 +86,7 @@ public class TreeRenderer : MonoBehaviour
                 break;
 
             case TileStatsHolder.BiomeCategory.HotMidwet:
-                _tilemap_vegetation.SetTile(np, _tree_temperate);
+                _tilemap_vegetation.SetTile(np, _tree_mangrove);
                 break;
 
             case TileStatsHolder.BiomeCategory.MidtempDry:
@@ -103,7 +106,7 @@ public class TreeRenderer : MonoBehaviour
                 break;
 
             case TileStatsHolder.BiomeCategory.MidtempWet:
-                _tilemap_vegetation.SetTile(np, _tree_mangrove);
+                _tilemap_vegetation.SetTile(np, _tree_temperate);
                 break;
 
             case TileStatsHolder.BiomeCategory.HotWet:
@@ -118,4 +121,11 @@ public class TreeRenderer : MonoBehaviour
     {
         _tilemap_vegetation.SetTile(coord, null);
     }
+
+    public bool CheckForTreesAtCoord(Vector2Int coord)
+    {
+        return _tilemap_vegetation.HasTile((Vector3Int)coord);
+    }
+
+
 }
