@@ -2366,6 +2366,7 @@ MonoBehaviour:
   _hotThreshold: 0.7
   _hillThreshold: 0.62
   _mountainThreshold: 0.7
+  _treeClumpingFactor: 2.5
 --- !u!114 &517811939
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2394,11 +2395,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tilemap_vegetation: {fileID: 273807939}
-  _tree_temperate: {fileID: 11400000, guid: a7871459b0f4e344fbc8f5433ba15d8b, type: 2}
+  _tree_temperate: {fileID: 11400000, guid: d5da1a9659cb15a48ae8abc4fa328239, type: 2}
   _tree_evergreen: {fileID: 11400000, guid: 664e8146db0b1274ea5037de412013f7, type: 2}
   _tree_desert: {fileID: 11400000, guid: e1eceea440a1fcb46beee3e129134846, type: 2}
   _tree_snowy: {fileID: 11400000, guid: 4085818f5cc3beb428411e8feb3eea26, type: 2}
   _tree_mangrove: {fileID: 11400000, guid: 746acc4b4c48c6747b4b804e49410995, type: 2}
+  _treeFactor: 0.125
 --- !u!114 &517811941
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2455,8 +2457,8 @@ MonoBehaviour:
   _house_desert: {fileID: 11400000, guid: 4b0f99d35b9a7a14f8ef714047bd0ce2, type: 2}
   _house_snowy: {fileID: 11400000, guid: 8364331700586144fb723604e82b9f2f, type: 2}
   _house_swamp: {fileID: 11400000, guid: 38aa2dc88f3e31943b7a3aa6244f3f1b, type: 2}
-  _populationGridSize: 50
-  _maxTribeMigrationDistance: 40
+  _populationGridSize: 5
+  _maxTribeMigrationDistance: 200
   _maxCitySize: 20
 --- !u!1 &519420028
 GameObject:

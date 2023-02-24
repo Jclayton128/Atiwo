@@ -27,6 +27,8 @@ public class TreeRenderer : MonoBehaviour
     // for (midtemp, wet) (hot, wet)
     [SerializeField] TileBase _tree_mangrove = null;
 
+    [SerializeField] float _treeFactor = .75f;
+
     private void Awake()
     {
         Instance = this;
@@ -61,7 +63,7 @@ public class TreeRenderer : MonoBehaviour
                     _tsh.GetBiomeCategoryAtCoord(x, y))) continue;
 
                 float chance = _tsh.GetVegetationChanceAtCoord(x, y);
-                if (_rnd.NextDouble() <= chance)
+                if ( _rnd.NextDouble() <= chance * _treeFactor) 
                 {
                     PlaceTreeAtCoord(x, y);
                 } 

@@ -35,6 +35,10 @@ public class TileStatsHolder : MonoBehaviour
     [SerializeField] float _hotThreshold = 0.7f;
     [SerializeField] float _hillThreshold = 0.5f;
     [SerializeField] float _mountainThreshold = 0.7f;
+
+    [SerializeField] float _treeClumpingFactor = 1f;
+
+
     //state
     public int Dimension => _tileDimension;
 
@@ -216,6 +220,11 @@ public class TileStatsHolder : MonoBehaviour
         //}
     }
 
+    public void SetVegetationChanceAtTile(int x, int y, float vegetationChance)
+    {
+        _vegetationMap[x, y] = vegetationChance;
+    }
+
     public void ModifyVegetationAtTile(int xCoord, int yCoord, float vegetationChange)
     {
         _vegetationMap[xCoord, yCoord] += vegetationChange;
@@ -353,9 +362,31 @@ public class TileStatsHolder : MonoBehaviour
         return _biomeMap[xCoord, yCoord];
     }
     
-    public float GetVegetationChanceAtCoord(int xCoord, int yCoord)
+    public float GetVegetationChanceAtCoord(int x, int y)
     {
-        return _vegetationMap[xCoord, yCoord];
+        float chance = _vegetationMap[x, y];
+
+        if (y + 1 < _tileDimension &&
+            TreeRenderer.Instance.CheckForTreesAtCoord(new Vector2Int(x,y+1)))
+        {
+            chance += _treeClumpingFactor;
+        }
+        if (x + 1 < _tileDimension &&
+            TreeRenderer.Instance.CheckForTreesAtCoord(new Vector2Int(x+1, y)))
+        {
+            chance += _treeClumpingFactor;
+        }
+        if (y-1>=0 &&
+            TreeRenderer.Instance.CheckForTreesAtCoord(new Vector2Int(x, y - 1)))
+        {
+            chance += _treeClumpingFactor;
+        }
+        if (x-1 >= 0 &&
+            TreeRenderer.Instance.CheckForTreesAtCoord(new Vector2Int(x-1, y)))
+        {
+            chance += _treeClumpingFactor;
+        }
+        return chance;
     }
 
     public float GetHabitabilityAtCoord(int x, int y)
@@ -827,8 +858,8 @@ public class TileStatsHolder : MonoBehaviour
         }
 
 
-        float chanceforVegetation = ConvertBiomeAndMoistureIntoVegetationChance(moistureCategory, moisture);
-        _vegetationMap[xCoord, yCoord] = chanceforVegetation;
+        //float chanceforVegetation = ConvertBiomeAndMoistureIntoVegetationChance(moistureCategory, moisture);
+        //_vegetationMap[xCoord, yCoord] = chanceforVegetation;
         _biomeMap[xCoord, yCoord] = bc;
     }
 

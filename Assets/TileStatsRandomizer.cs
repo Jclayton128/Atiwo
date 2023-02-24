@@ -80,12 +80,6 @@ public class TileStatsRandomizer : MonoBehaviour
                         ((float)x /  _noiseScale_elevation) + elevationOffset_2,
                         ((float)y /  _noiseScale_elevation) + elevationOffset_2)));
 
-                //elevation = Mathf.Clamp01(elevation);
-
-                //if (elevation <= TileStatsRenderer.Instance.DeepwaterThreshold)
-                //{
-                //    TileStatsHolder.Instance.EnforceDeepWaterWithWaterAsNeighbor(x,y);
-                //}
 
                 TileStatsHolder.Instance.SetTemperatureAtTile(x,y, temp);
                 TileStatsHolder.Instance.SetMoistureAtTile(x,y, moisture);
@@ -93,6 +87,10 @@ public class TileStatsRandomizer : MonoBehaviour
 
                 //well, population != elevation...
                 TileStatsHolder.Instance.SetPopulationAtTile(x, y, elevation);
+
+                //Chance of vegetation is highest at moderate temp, and higher moisture;
+                float vegChance = (1f - (Mathf.Abs(.75f - moisture)) - (Mathf.Abs(.5f - temp)));
+                TileStatsHolder.Instance.SetVegetationChanceAtTile(x, y, vegChance);
 
                 TileStatsHolder.Instance.CategorizeTileAtCoord(x, y);
                 //TileStatsRenderer.Instance.RenderSingleCellByCoord(x,y);
